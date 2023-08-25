@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +36,7 @@ public class ServiceImplementation implements ServiceBook{
     }
 
     @Override
-    public Optional<Book> updateBook(long id, Book book) {
+    public Optional<Book> changeBook(long id, Book book) {
         if (bookRepo.existsById(id)){
             Optional<Book> result = Optional.of(book);
             result.get().setId(id);
@@ -43,6 +44,32 @@ public class ServiceImplementation implements ServiceBook{
              return result;
         }else return Optional.empty();
     }
+
+    @Override
+    public Optional<Book> updateBook(long id, Book book) {
+        if (bookRepo.existsById(id)){
+            Class<?> bookClass = book.getClass();
+            Field[] bookFields = bookClass.getDeclaredFields();
+
+            Optional<Book> bookToUpdate = bookRepo.findById(id);
+            for(Field field: bookFields){
+                field.setAccessible(true);
+                try {
+                    Object sourceValue = field.get(book);
+                    if(sourceValue != null && !field.getName().equals("id")){
+                        field.set(bookToUpdate.get(), sourceValue);
+                    }
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            bookToUpdate.get().setId(id);
+            bookRepo.save(bookToUpdate.get());
+            return bookToUpdate;
+        }else return Optional.empty();
+    }
+
 
     @Override
     public Optional<Book> deleteBookById(long id) {
