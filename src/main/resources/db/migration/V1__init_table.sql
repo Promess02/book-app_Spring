@@ -1,7 +1,7 @@
 drop table if exists tasks;
 
 create table book(
-    id int primary key auto_increment,
+    id bigint primary key auto_increment,
     isbn int not null,
     author varchar(255) not null,
     name varchar(255) not null,

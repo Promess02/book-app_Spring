@@ -26,11 +26,11 @@ public class Book {
     private String author;
     private String description;
 
-    @Column(columnDefinition = "VARCHAR(40)", name = "book_category")
+    @Column(name = "book_category")
     @Enumerated(EnumType.STRING)
     private BookCategory bookCategory;
 
-    @Column(columnDefinition = "VARCHAR(40)", name = "book_type")
+    @Column( name = "book_type")
     @Enumerated(EnumType.STRING)
     private BookType bookType;
 

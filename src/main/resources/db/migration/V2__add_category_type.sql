@@ -1,4 +1,5 @@
+
 alter table book
-    add column book_category varchar(40);
+    modify column book_category enum('BIOGRAPHY','CRIME','DRAMA','FANTASY','HORROR','ROMANCE','SCIENCE_FICTION');
 alter table book
-    add column book_type varchar(40);
+    modify column book_type enum('AUDIOBOOK','EBOOK','HARDCOVER','PAPERBACK');
