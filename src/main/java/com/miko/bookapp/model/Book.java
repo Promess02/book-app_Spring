@@ -33,4 +33,12 @@ public class Book {
     @Column(columnDefinition = "VARCHAR(40)", name = "book_type")
     @Enumerated(EnumType.STRING)
     private BookType bookType;
+
+    @Column
+    @NotBlank(message = "prize cannot be blank")
+    private Double prize;
+
+    @ManyToOne
+    @JoinColumn(name = "bundle_id")
+    private BookBundle bookBundle;
 }

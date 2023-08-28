@@ -8,4 +8,9 @@ public enum BookType {
     BookType(String name) {
         this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
