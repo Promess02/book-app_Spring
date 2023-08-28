@@ -83,6 +83,23 @@ public class BookController {
         return idNotFoundResponse();
     }
 
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<Response> changeBook(@RequestBody Book book, @PathVariable long id){
+        Optional<Book> result = service.findBookById(id);
+        if(result.isPresent()){
+            return ResponseEntity.ok(
+                    Response.builder()
+                            .message("a book with id: " + id + " changed")
+                            .timestamp(LocalDateTime.now())
+                            .httpStatus(HttpStatus.OK)
+                            .statusCode(HttpStatus.OK.value())
+                            .data(Map.of("books: ", service.changeBook(id, book)))
+                            .build()
+            );
+        }
+        return idNotFoundResponse();
+    }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Response> deleteBookById(@PathVariable long id){
         Optional<Book> result = service.findBookById(id);

@@ -11,5 +11,8 @@ public interface ServiceBook {
     Book saveBook(Book book);
     Optional<Book> findBookById(long id);
     Optional<Book> updateBook(long id, Book book);
+
+    Optional<Book> changeBook(long id, Book book);
+
     Optional<Book> deleteBookById(long id);
 }

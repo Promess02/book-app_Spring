@@ -1,6 +1,8 @@
 package com.miko.bookapp.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.miko.bookapp.enums.BookCategory;
+import com.miko.bookapp.enums.BookType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,4 +25,12 @@ public class Book {
     @NotBlank(message = "author cannot be blank")
     private String author;
     private String description;
+
+    @Column(columnDefinition = "VARCHAR(40)", name = "book_category")
+    @Enumerated(EnumType.STRING)
+    private BookCategory bookCategory;
+
+    @Column(columnDefinition = "VARCHAR(40)", name = "book_type")
+    @Enumerated(EnumType.STRING)
+    private BookType bookType;
 }
