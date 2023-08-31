@@ -2,12 +2,10 @@ package com.miko.bookapp.Controller;
 
 import com.miko.bookapp.model.Book;
 import com.miko.bookapp.model.Response;
-import com.miko.bookapp.repo.BookRepo;
-import com.miko.bookapp.service.ServiceImplementation;
+import com.miko.bookapp.service.ServiceBook;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -20,7 +18,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BookController {
 
-    private final ServiceImplementation service;
+    private final ServiceBook service;
 
     @GetMapping("/list")
     public ResponseEntity<Response> listBooks(){

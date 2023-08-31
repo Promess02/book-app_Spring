@@ -15,7 +15,7 @@ import java.util.Set;
 public class BookBundle {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "bundle_id")
-    private long BundleID;
+    private long bundleID;
 
     private String description;
 
@@ -30,6 +30,7 @@ public class BookBundle {
 
     BookBundle(){
         double tempPrize = 0d;
+        discount = 0d;
         if(books!=null){
             for(Book book: books){
                 if(book.getPrize()!=null)
@@ -37,11 +38,11 @@ public class BookBundle {
             }
         }
 
-        combinedPrize = tempPrize;
+        combinedPrize = tempPrize-(tempPrize*discount);
     }
 
     public long getBundleID() {
-        return BundleID;
+        return bundleID;
     }
 
     public void setCombinedPrize(Double combinedPrize) {
@@ -49,7 +50,7 @@ public class BookBundle {
     }
 
     void setBundleID(long bundleID) {
-        BundleID = bundleID;
+        bundleID = bundleID;
     }
 
     public String getDescription() {
@@ -66,6 +67,7 @@ public class BookBundle {
 
     public void setDiscount(Double discount) {
         this.discount = discount;
+        combinedPrize = combinedPrize-(combinedPrize*discount);
     }
 
     public Double getCombinedPrize() {
@@ -79,4 +81,27 @@ public class BookBundle {
     public void setBooks(Set<Book> books) {
         this.books = books;
     }
+
+    public Set<Book> addBook(Book book){
+        this.books.add(book);
+        refreshCombinedPrize();
+        return this.books;
+    }
+    public Set<Book> deleteBook(long bookID){
+        this.books.removeIf(book -> book.getId()==bookID);
+        refreshCombinedPrize();
+        return this.books;
+    }
+    private void refreshCombinedPrize(){
+        double tempPrize = 0d;
+        if(books!=null){
+            for(Book book: books){
+                if(book.getPrize()!=null)
+                    tempPrize+=book.getPrize();
+            }
+        }
+
+        combinedPrize = tempPrize-(tempPrize*discount);
+    }
+
 }

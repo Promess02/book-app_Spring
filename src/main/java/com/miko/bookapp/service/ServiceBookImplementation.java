@@ -13,7 +13,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ServiceImplementation implements ServiceBook{
+public class ServiceBookImplementation implements ServiceBook{
 
     private final BookRepo bookRepo;
     @Override
