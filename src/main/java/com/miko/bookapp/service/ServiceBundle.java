@@ -17,7 +17,8 @@ public interface ServiceBundle {
 
     Optional<BookBundle> deleteBundleById(long id);
 
-    Optional<BookBundle> addBookToBundle(long id, Book book);
+    Optional<BookBundle> addBookToBundle(long BundleID, long BookID);
+
     Optional<BookBundle> deleteBookFromBundle(long bundleID, long bookID);
 
     Optional<BookBundle> changeBundleDiscount(long bundleID, double newDiscount);

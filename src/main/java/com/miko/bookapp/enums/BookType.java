@@ -1,5 +1,8 @@
 package com.miko.bookapp.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum BookType {
     HARDCOVER("hardcover"), PAPERBACK("paperback"), EBOOK("ebook"), AUDIOBOOK("audiobook");
 
@@ -7,6 +10,21 @@ public enum BookType {
 
     BookType(String name) {
         this.name = name;
+    }
+
+    @JsonValue
+    public String getName() {
+        return name;
+    }
+
+    @JsonCreator
+    public static BookType fromValue(String value) {
+        for (BookType bookType : BookType.values()) {
+            if (bookType.name.equalsIgnoreCase(value)) {
+                return bookType;
+            }
+        }
+        throw new IllegalArgumentException("Invalid BookType: " + value);
     }
 
     @Override

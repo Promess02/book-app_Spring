@@ -22,7 +22,23 @@ public class BundleController {
     public BundleController(ServiceBundle serviceBundle) {
         this.service = serviceBundle;
     }
+    @GetMapping("/list/{id}")
+    public ResponseEntity<Response> getBundleById(@PathVariable long id){
+        Optional<BookBundle> result = service.findBundleById(id);
+        if(result.isPresent()){
+            return ResponseEntity.ok(
+                    Response.builder()
+                            .message("a bundle with id: " + id + " retrieved")
+                            .timestamp(LocalDateTime.now())
+                            .httpStatus(HttpStatus.OK)
+                            .statusCode(HttpStatus.OK.value())
+                            .data(Map.of("bundle: ", result.get()))
+                            .build()
+            );
+        }
+        return idNotFoundResponse();
 
+    }
     @GetMapping("/list")
     public ResponseEntity<Response> listBundles(){
         return ResponseEntity.ok(
@@ -36,23 +52,7 @@ public class BundleController {
         );
     }
 
-    @GetMapping("/list/{id}")
-    public ResponseEntity<Response> getBundleById(@PathVariable long id){
-        Optional<BookBundle> result = service.findBundleById(id);
-        if(result.isPresent()){
-            return ResponseEntity.ok(
-                    Response.builder()
-                            .message("a bundle with id: " + id + " retrieved")
-                            .timestamp(LocalDateTime.now())
-                            .httpStatus(HttpStatus.OK)
-                            .statusCode(HttpStatus.OK.value())
-                            .data(Map.of("bundle: ", service.findBundleById(id)))
-                            .build()
-            );
-        }
-        return idNotFoundResponse();
 
-    }
 
     @PostMapping("/create")
     public ResponseEntity<Response> createBundle(@RequestBody @Valid BookBundle bookBundle){
@@ -119,17 +119,17 @@ public class BundleController {
         return idNotFoundResponse();
     }
 
-    @PatchMapping("/addBook/{id}")
-    public ResponseEntity<Response> addBookToBundle(@RequestBody Book book, @PathVariable long id){
-        Optional<BookBundle> result = service.findBundleById(id);
+    @PatchMapping("/addBook/{bundleID}/{bookID}")
+    public ResponseEntity<Response> addBookToBundle(@PathVariable long bookID, @PathVariable long bundleID){
+        Optional<BookBundle> result = service.findBundleById(bundleID);
         if(result.isPresent()){
             return ResponseEntity.ok(
                     Response.builder()
-                            .message("added a book to bundle with id: " + id)
+                            .message("added a book to bundle with id: " + bundleID)
                             .timestamp(LocalDateTime.now())
                             .httpStatus(HttpStatus.OK)
                             .statusCode(HttpStatus.OK.value())
-                            .data(Map.of("bundle: ", service.addBookToBundle(id, book)))
+                            .data(Map.of("bundle: ", service.addBookToBundle(bundleID, bookID)))
                             .build()
             );
         }

@@ -1,15 +1,15 @@
 package com.miko.bookapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import java.util.Set;
 
 @AllArgsConstructor
-@Data
 @Table(name = "book_bundle")
 @Entity
 public class BookBundle {
@@ -25,6 +25,7 @@ public class BookBundle {
     @Column(name = "combined_prize")
     private Double combinedPrize;
 
+    @JsonBackReference
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "bookBundle")
     private Set<Book> books;
 
@@ -38,7 +39,7 @@ public class BookBundle {
             }
         }
 
-        combinedPrize = tempPrize-(tempPrize*discount);
+        combinedPrize = tempPrize*(1-discount);
     }
 
     public long getBundleID() {
@@ -69,7 +70,6 @@ public class BookBundle {
         this.discount = discount;
         combinedPrize = combinedPrize-(combinedPrize*discount);
     }
-
     public Double getCombinedPrize() {
         return combinedPrize;
     }
@@ -83,14 +83,15 @@ public class BookBundle {
     }
 
     public Set<Book> addBook(Book book){
-        this.books.add(book);
+        books.add(book);
         refreshCombinedPrize();
-        return this.books;
+
+        return books;
     }
     public Set<Book> deleteBook(long bookID){
-        this.books.removeIf(book -> book.getId()==bookID);
+        books.removeIf(book -> book.getId()==bookID);
         refreshCombinedPrize();
-        return this.books;
+        return books;
     }
     private void refreshCombinedPrize(){
         double tempPrize = 0d;
@@ -101,7 +102,12 @@ public class BookBundle {
             }
         }
 
-        combinedPrize = tempPrize-(tempPrize*discount);
+        combinedPrize = tempPrize*(1-discount);
     }
 
+    @Override
+    public String toString() {
+        return "" + bundleID;
+
+    }
 }

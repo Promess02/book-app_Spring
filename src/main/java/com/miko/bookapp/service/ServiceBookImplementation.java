@@ -55,7 +55,7 @@ public class ServiceBookImplementation implements ServiceBook{
                 field.setAccessible(true);
                 try{
                     var bookValue = field.get(book);
-                    if(bookValue!= null && !field.getName().equals("id")) field.set(result, bookValue);
+                    if(bookValue!= null && !field.getName().equals("id") && !field.getName().equals("isbn")) field.set(result, bookValue);
                 }catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
