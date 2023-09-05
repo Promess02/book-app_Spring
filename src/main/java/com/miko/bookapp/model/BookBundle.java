@@ -7,6 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -27,19 +30,15 @@ public class BookBundle {
 
     @JsonBackReference
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "bookBundle")
-    private Set<Book> books;
+    private HashSet<Book> books;
 
     BookBundle(){
-        double tempPrize = 0d;
-        discount = 0d;
-        if(books!=null){
-            for(Book book: books){
-                if(book.getPrize()!=null)
-                    tempPrize+=book.getPrize();
-            }
-        }
-
-        combinedPrize = tempPrize*(1-discount);
+        books = new HashSet<>();
+    }
+    public Set<Book> addBook(Book book){
+        books.add(book);
+        refreshCombinedPrize();
+        return books;
     }
 
     public long getBundleID() {
@@ -78,16 +77,11 @@ public class BookBundle {
         return books;
     }
 
-    public void setBooks(Set<Book> books) {
+    public void setBooks(HashSet<Book> books) {
         this.books = books;
     }
 
-    public Set<Book> addBook(Book book){
-        books.add(book);
-        refreshCombinedPrize();
 
-        return books;
-    }
     public Set<Book> deleteBook(long bookID){
         books.removeIf(book -> book.getId()==bookID);
         refreshCombinedPrize();

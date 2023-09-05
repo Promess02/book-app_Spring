@@ -64,18 +64,20 @@ public class ServiceBundleImplementation implements ServiceBundle{
             BookBundle result = bundleOptional.get();
 
             for(Field field: bundleFields){
+                field.setAccessible(true);
                 try {
-                    var oldValue = field.get(result);
                     var newValue = field.get(bundle);
-                    if(!oldValue.equals(newValue) && !field.getName().equals("bundleID"))
+                    if(newValue!=null && !field.getName().equals("bundleID"))
                         field.set(result,newValue);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
             }
+            bundleRepo.save(result);
             log.info("bundle changed with id: " + id);
             return Optional.of(result);
         }
+        log.info("id provided for bundle was not found");
         return Optional.empty();
     }
 
@@ -105,14 +107,12 @@ public class ServiceBundleImplementation implements ServiceBundle{
             var book = bookOptional.get();
             book.setBookBundle(bundle);
 
-            Set<Book> bookSet = bundle.addBook(book);
-            bundle.setBooks(bookSet);
+            bundle.addBook(book);
             bundleRepo.save(bundle);
             bookRepo.save(book);
             log.info("book added to a bundle");
             return Optional.of(bundle);
         }
-
         return Optional.empty();
     }
 
@@ -124,8 +124,13 @@ public class ServiceBundleImplementation implements ServiceBundle{
             if(bundleOptional.isEmpty()) return Optional.empty();
             var bundle = bundleOptional.get();
             bundle.deleteBook(bookID);
+            var bookOptional = bookRepo.findById(bookID);
+            if(bookOptional.isEmpty()) return Optional.empty();
+            var book = bookOptional.get();
+            book.setBookBundle(null);
             bundleRepo.save(bundle);
             log.info("book deleted from the bundle");
+            return Optional.of(bundle);
         }
         return Optional.empty();
     }
@@ -136,7 +141,6 @@ public class ServiceBundleImplementation implements ServiceBundle{
             var bundleOptional = bundleRepo.findById(bundleID);
             if(bundleOptional.isEmpty()) return Optional.empty();
             var bundle = bundleOptional.get();
-
             bundle.setDiscount(newDiscount);
             bundleRepo.save(bundle);
             log.info("bundle discount changed");
