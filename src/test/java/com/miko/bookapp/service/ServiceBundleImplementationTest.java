@@ -4,17 +4,15 @@ import com.miko.bookapp.model.Book;
 import com.miko.bookapp.model.BookBundle;
 import com.miko.bookapp.repo.BookRepo;
 import com.miko.bookapp.repo.BundleRepo;
-import lombok.Builder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -31,8 +29,7 @@ class ServiceBundleImplementationTest {
         //when
         when(mockBundleRepo.existsById(anyInt())).thenReturn(false);
         //then
-
-        assertThat(mockBundleService.updateBundle(1,dummyBundle(1,"desc")).equals(Optional.empty()));
+        assertThat(mockBundleService.updateBundle(1,dummyBundle(1,"desc"))).isEqualTo(Optional.empty());
     }
 
     @Test
@@ -46,14 +43,17 @@ class ServiceBundleImplementationTest {
         //then
         mockBundleService.saveBundle(dummyBundle(1, "old"));
 
-        //checking if bundle saved
-        assertThat(mockBundleService.findBundleById(1).get().getDescription()).isEqualTo("old");
-        //checking if function returns the correct response
-        assertThat(mockBundleService.updateBundle(1,dummyBundle(1,"new")).get().getDescription()).isEqualTo("new");
-        //updating the in memory bundle repo
-        mockBundleService.updateBundle(1,dummyBundle(1,"new"));
-        //checking if the bundle updated in the repo
-        assertArrayEquals(mockBundleService.findBundleById(1).get().getDescription().toCharArray(), "new".toCharArray());
+        if(mockBundleService.findBundleById(1).isPresent()){
+            //checking if bundle saved
+            assertThat(mockBundleService.findBundleById(1).get().getDescription()).isEqualTo("old");
+            //checking if function returns the correct response
+            assertThat(mockBundleService.updateBundle(1,dummyBundle(1,"new")).get().getDescription()).isEqualTo("new");
+            //updating the in memory bundle repo
+            mockBundleService.updateBundle(1,dummyBundle(1,"new"));
+            //checking if the bundle updated in the repo
+            assertArrayEquals(mockBundleService.findBundleById(1).get().getDescription().toCharArray(), "new".toCharArray());
+        }else throw new RuntimeException("couldn't find the bundle");
+
     }
 
     @Test
@@ -229,8 +229,8 @@ class ServiceBundleImplementationTest {
         var mockBookRepo = mock(BookRepo.class);
         var mockBundleService = new ServiceBundleImplementation(mockBundleRepo, mockBookRepo);
 
-        mockBundleService.saveBundle(dummyBundle(1,"old"));
-        mockBundleService.changeBundleDiscount(1,0.24);
+        mockBundleService.saveBundle(dummyBundle(2,"old"));
+        mockBundleService.changeBundleDiscount(2,0.24);
         assertThat(mockBundleRepo.findById(1).get().getDiscount()).isEqualTo(0.24);
     }
 

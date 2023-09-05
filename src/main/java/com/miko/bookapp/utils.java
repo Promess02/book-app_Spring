@@ -1,10 +1,9 @@
 package com.miko.bookapp;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
-@Component
-public class utils {
+@Configuration
+class utils {
 
     public static String mySQLpass = "MI21mi0933";
 }

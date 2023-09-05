@@ -1,17 +1,14 @@
 package com.miko.bookapp.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
+@SuppressWarnings("UnusedReturnValue")
 @AllArgsConstructor
 @Table(name = "book_bundle")
 @Entity
@@ -50,7 +47,7 @@ public class BookBundle {
     }
 
     void setBundleID(long bundleID) {
-        bundleID = bundleID;
+        this.bundleID = bundleID;
     }
 
     public String getDescription() {

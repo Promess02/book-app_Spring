@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum BookType {
     HARDCOVER("hardcover"), PAPERBACK("paperback"), EBOOK("ebook"), AUDIOBOOK("audiobook");
 
-    private String name;
+    private final String name;
 
     BookType(String name) {
         this.name = name;

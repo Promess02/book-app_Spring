@@ -1,6 +1,5 @@
 package com.miko.bookapp.repo;
 
-import com.miko.bookapp.model.Book;
 import com.miko.bookapp.model.BookBundle;
 
 import java.util.List;
