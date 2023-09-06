@@ -1,5 +1,7 @@
 package com.miko.bookapp.service;
 
+import com.miko.bookapp.enums.BookCategory;
+import com.miko.bookapp.enums.BookType;
 import com.miko.bookapp.model.Book;
 import com.miko.bookapp.repo.BookRepo;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +50,7 @@ public class ServiceBookImplementation implements ServiceBook{
 
     @Override
     public Optional<Book> changeBook(long id, Book book){
-        if(bookRepo.existsById(id)){
+        if(bookRepo.findById(id).isPresent()){
             var bookClass = book.getClass();
             Field[] fields= bookClass.getDeclaredFields();
             Book result = bookRepo.findById(id).get();
@@ -69,7 +72,24 @@ public class ServiceBookImplementation implements ServiceBook{
     public Optional<Book> deleteBookById(long id) {
         if (bookRepo.existsById(id)){
             bookRepo.deleteById(id);
-            return bookRepo.findById(id);
-        }else return Optional.empty();
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<List<Book>> getFilteredBooks(String category, String type, Double prizeMax) {
+        var allBooks = bookRepo.findAll();
+        BookCategory bookCategory = BookCategory.fromValue(category);
+        BookType bookType = BookType.fromValue(type);
+
+        var result = allBooks.stream()
+                .filter(book ->
+                        (book.getBookCategory() != null && book.getBookCategory().equals(bookCategory))
+                        && (book.getBookType()!= null && book.getBookType().equals(bookType))
+                        && (book.getPrize() != null && book.getPrize() <= prizeMax))
+                .collect(Collectors.toList());
+
+        if(result.isEmpty()) return Optional.empty();
+        else return Optional.of(result);
     }
 }

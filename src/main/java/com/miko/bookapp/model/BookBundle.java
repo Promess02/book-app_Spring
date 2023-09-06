@@ -27,10 +27,11 @@ public class BookBundle {
 
     @JsonBackReference
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "bookBundle")
-    private HashSet<Book> books;
+    private Set<Book> books;
 
     BookBundle(){
-        books = new HashSet<>();
+        combinedPrize = 0d;
+        discount =0d;
     }
     public Set<Book> addBook(Book book){
         books.add(book);
@@ -42,7 +43,7 @@ public class BookBundle {
         return bundleID;
     }
 
-    public void setCombinedPrize(Double combinedPrize) {
+    private void setCombinedPrize(Double combinedPrize) {
         this.combinedPrize = combinedPrize;
     }
 
@@ -74,10 +75,9 @@ public class BookBundle {
         return books;
     }
 
-    public void setBooks(HashSet<Book> books) {
-        this.books = books;
-    }
-
+//    public void setBooks(HashSet<Book> books) {
+//        this.books = books;
+//    }
 
     public Set<Book> deleteBook(long bookID){
         books.removeIf(book -> book.getId()==bookID);
@@ -93,7 +93,7 @@ public class BookBundle {
             }
         }
 
-        combinedPrize = tempPrize*(1-discount);
+        this.setCombinedPrize(tempPrize*(1-discount));
     }
 
     @Override

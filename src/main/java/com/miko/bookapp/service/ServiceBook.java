@@ -15,4 +15,6 @@ public interface ServiceBook {
     Optional<Book> changeBook(long id, Book book);
 
     Optional<Book> deleteBookById(long id);
+
+    Optional<List<Book>> getFilteredBooks(String category, String type, Double prizeMax);
 }

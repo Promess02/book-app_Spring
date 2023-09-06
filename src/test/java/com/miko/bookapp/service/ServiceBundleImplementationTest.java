@@ -231,7 +231,7 @@ class ServiceBundleImplementationTest {
 
         mockBundleService.saveBundle(dummyBundle(2,"old"));
         mockBundleService.changeBundleDiscount(2,0.24);
-        assertThat(mockBundleRepo.findById(1).get().getDiscount()).isEqualTo(0.24);
+        assertThat(mockBundleRepo.findById(2).get().getDiscount()).isEqualTo(0.24);
     }
 
     @Test

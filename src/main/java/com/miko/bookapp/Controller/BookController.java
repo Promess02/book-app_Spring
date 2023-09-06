@@ -1,5 +1,6 @@
 package com.miko.bookapp.Controller;
 
+import com.miko.bookapp.enums.BookCategory;
 import com.miko.bookapp.model.Book;
 import com.miko.bookapp.model.Response;
 import com.miko.bookapp.service.ServiceBook;
@@ -132,6 +133,21 @@ public class BookController {
         }
 
         return idNotFoundResponse();
+    }
+
+    @GetMapping("/filter/{category}/{type}/{prizeMax}")
+    public ResponseEntity<Response> filterBooks(@PathVariable String category,
+                                                @PathVariable String type,
+                                                @PathVariable Double prizeMax){
+        return ResponseEntity.ok(
+                Response.builder()
+                        .message("List Of filtered Books retrieved")
+                        .timestamp(LocalDateTime.now())
+                        .httpStatus(HttpStatus.OK)
+                        .statusCode(HttpStatus.OK.value())
+                        .data(Map.of("books: ", service.getFilteredBooks(category, type, prizeMax)))
+                        .build()
+        );
     }
 
     ResponseEntity<Response> idNotFoundResponse(){
