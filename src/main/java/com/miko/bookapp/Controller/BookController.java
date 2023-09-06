@@ -1,6 +1,5 @@
 package com.miko.bookapp.Controller;
 
-import com.miko.bookapp.enums.BookCategory;
 import com.miko.bookapp.model.Book;
 import com.miko.bookapp.model.Response;
 import com.miko.bookapp.service.ServiceBook;

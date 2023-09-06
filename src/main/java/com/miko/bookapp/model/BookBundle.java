@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
-import java.util.HashSet;
 import java.util.Set;
 
 @SuppressWarnings("UnusedReturnValue")
@@ -75,9 +74,6 @@ public class BookBundle {
         return books;
     }
 
-//    public void setBooks(HashSet<Book> books) {
-//        this.books = books;
-//    }
 
     public Set<Book> deleteBook(long bookID){
         books.removeIf(book -> book.getId()==bookID);

@@ -246,7 +246,7 @@ class ServiceBundleImplementationTest {
         assertThat(mockBundleService.deleteBookFromBundle(1,1)).isEqualTo(Optional.empty());
     }
     private BookBundle dummyBundle(int id, String desc){
-        return new BookBundle(id,desc, 0.45,0d,new HashSet<>());
+        return new BookBundle(id,desc, 0.45,0d, new HashSet<>());
     }
 
     private Book dummyBook(int id, String name){
