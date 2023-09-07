@@ -18,6 +18,7 @@ public enum BookCategory {
 
     @JsonCreator
     public static BookCategory fromValue(String value) {
+        if(value== null) return null;
         for (BookCategory category : BookCategory.values()) {
             if (category.name.equalsIgnoreCase(value)) {
                 return category;

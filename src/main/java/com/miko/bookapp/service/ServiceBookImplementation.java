@@ -81,15 +81,16 @@ public class ServiceBookImplementation implements ServiceBook{
         var allBooks = bookRepo.findAll();
         BookCategory bookCategory = BookCategory.fromValue(category);
         BookType bookType = BookType.fromValue(type);
-
+        // if given parameter is null then books are not filtered through with that parameter
         var result = allBooks.stream()
                 .filter(book ->
-                        (book.getBookCategory() != null && book.getBookCategory().equals(bookCategory))
-                        && (book.getBookType()!= null && book.getBookType().equals(bookType))
-                        && (book.getPrize() != null && book.getPrize() <= prizeMax))
+                        (category == null || (book.getBookCategory() != null && book.getBookCategory().equals(bookCategory)))
+                                && (type == null || (book.getBookType() != null && book.getBookType().equals(bookType)))
+                                && (prizeMax == null || (book.getPrize() != null && book.getPrize() <= prizeMax))
+                )
                 .collect(Collectors.toList());
 
-        if(result.isEmpty()) return Optional.empty();
+        if (result.isEmpty()) return Optional.empty();
         else return Optional.of(result);
     }
 }

@@ -19,6 +19,7 @@ public enum BookType {
 
     @JsonCreator
     public static BookType fromValue(String value) {
+        if(value == null) return null;
         for (BookType bookType : BookType.values()) {
             if (bookType.name.equalsIgnoreCase(value)) {
                 return bookType;

@@ -1,6 +1,7 @@
 package com.miko.bookapp.Controller;
 
 import com.miko.bookapp.model.Book;
+import com.miko.bookapp.model.FilterObject;
 import com.miko.bookapp.model.Response;
 import com.miko.bookapp.service.ServiceBook;
 import lombok.RequiredArgsConstructor;
@@ -134,10 +135,12 @@ public class BookController {
         return idNotFoundResponse();
     }
 
-    @GetMapping("/filter/{category}/{type}/{prizeMax}")
-    public ResponseEntity<Response> filterBooks(@PathVariable String category,
-                                                @PathVariable String type,
-                                                @PathVariable Double prizeMax){
+    @GetMapping("/filter")
+    public ResponseEntity<Response> filterBooks(@RequestBody FilterObject filterObject){
+
+        var category = filterObject.getCategory()!=null? filterObject.getCategory() : null;
+        var type = filterObject.getType()!=null? filterObject.getType() : null;
+        var prizeMax = filterObject.getPrize()!=null? filterObject.getPrize() : null;
         return ResponseEntity.ok(
                 Response.builder()
                         .message("List Of filtered Books retrieved")

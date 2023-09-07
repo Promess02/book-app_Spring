@@ -156,12 +156,15 @@ class ServiceBookImplementationTest {
                 null, BookCategory.DRAMA, BookType.PAPERBACK, 98.4, null);
         var book5 = new Book(5,56,"book5", "sandie",
                 null, BookCategory.FANTASY, BookType.AUDIOBOOK, 48.4, null);
+        var book6 = new Book(6,83,"book6", "barry", null,null,
+                null, 85.2,null);
 
         mockBookRepo.save(book1);
         mockBookRepo.save(book2);
         mockBookRepo.save(book3);
         mockBookRepo.save(book4);
         mockBookRepo.save(book5);
+        mockBookRepo.save(book6);
 
         assertThat(mockBookService.getFilteredBooks("fantasy", "audiobook", 60d)).isEqualTo(Optional.of(List.of(book1, book5)));
         assertThat(mockBookService.getFilteredBooks("fantasy", "audiobook", 50d)).isEqualTo(Optional.of(List.of(book5)));
@@ -169,6 +172,10 @@ class ServiceBookImplementationTest {
         assertThat(mockBookService.getFilteredBooks("drama", "paperback", 100d)).isEqualTo(Optional.of(List.of(book4)));
         assertThat(mockBookService.getFilteredBooks("crime", "audiobook", 80d)).isEqualTo(Optional.of(List.of(book3)));
         assertThat(mockBookService.getFilteredBooks("crime", "audiobook", 30d)).isEqualTo(Optional.empty());
+        assertThat(mockBookService.getFilteredBooks(null, "audiobook", 100d)).isEqualTo(Optional.of(List.of(book1, book3,book5)));
+        assertThat(mockBookService.getFilteredBooks("fantasy", null, 100d)).isEqualTo(Optional.of(List.of(book1, book2,book5)));
+        assertThat(mockBookService.getFilteredBooks(null, null, 100d)).isEqualTo(Optional.of(List.of(book1, book2, book3, book4, book5, book6)));
+        assertThat(mockBookService.getFilteredBooks(null, null, 30d)).isEqualTo(Optional.empty());
 
     }
 
