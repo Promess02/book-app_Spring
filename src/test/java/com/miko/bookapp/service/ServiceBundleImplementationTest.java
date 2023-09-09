@@ -33,6 +33,25 @@ class ServiceBundleImplementationTest {
     }
 
     @Test
+    @DisplayName("checks if returns all bundles")
+    void findAllBundles() {
+
+        var mockBundleRepo = inMemoryBundleRepo();
+        var mockBookRepo = mock(BookRepo.class);
+        var mockBundleService = new ServiceBundleImplementation(mockBundleRepo,mockBookRepo);
+
+        mockBundleRepo.save(dummyBundle(1, "bundle1"));
+        mockBundleRepo.save(dummyBundle(2, "bundle2"));
+        mockBundleRepo.save(dummyBundle(3, "bundle3"));
+        mockBundleRepo.save(dummyBundle(4, "bundle4"));
+
+
+        //checks if function finds any bundles
+        assertThat(mockBundleService.getAllBundles().isEmpty()).isEqualTo(false);
+        //checks if function finds all the bundles saved in repository
+        assertThat(mockBundleService.getAllBundles().size()).isEqualTo(4);
+    }
+    @Test
     @DisplayName("checking if Bundle updates successfully")
     void updateBundle() {
         //given

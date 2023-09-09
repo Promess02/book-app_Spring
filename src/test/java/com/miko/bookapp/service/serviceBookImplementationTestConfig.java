@@ -1,30 +1,38 @@
 package com.miko.bookapp.service;
 
+import com.miko.bookapp.TestConfiguration;
 import com.miko.bookapp.enums.BookCategory;
 import com.miko.bookapp.enums.BookType;
 import com.miko.bookapp.model.Book;
 import com.miko.bookapp.repo.BookRepo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class ServiceBookImplementationTest {
+@ActiveProfiles("integration")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(TestConfiguration.class)
+class serviceBookImplementationTestConfig {
+    @Autowired
+    BookRepo mockBookRepo;
+
+    @Autowired
+    ServiceBook mockBookService;
 
     @Test
     @DisplayName("checks if returns the book from repo when found")
     void findBookById() {
-
-        var mockBookRepo = inMemoryBookRepo();
-
-        var mockBookService = new ServiceBookImplementation(mockBookRepo);
 
         mockBookService.saveBook(dummyBook(1,"desc"));
 
@@ -38,28 +46,23 @@ class ServiceBookImplementationTest {
     @DisplayName("checks if returns all books")
     void findAllBooks() {
 
-        var mockBookRepo = inMemoryBookRepo();
+        int initial = mockBookRepo.findAll().size();
 
-        var mockBookService = new ServiceBookImplementation(mockBookRepo);
-
-        mockBookRepo.save(dummyBook(1, "desc1"));
-        mockBookRepo.save(dummyBook(2, "desc2"));
-        mockBookRepo.save(dummyBook(3, "desc3"));
-        mockBookRepo.save(dummyBook(4, "desc4"));
-
+        mockBookRepo.save(dummyBook(initial+2, "desc1"));
+        mockBookRepo.save(dummyBook(initial+3, "desc2"));
+        mockBookRepo.save(dummyBook(initial+4, "desc3"));
+        mockBookRepo.save(dummyBook(initial+5, "desc4"));
 
         //checks if function finds any books
         assertThat(mockBookService.getAllBooks().isEmpty()).isEqualTo(false);
         //checks if function finds all the books saved in repository
-        assertThat(mockBookService.getAllBooks().size()).isEqualTo(4);
+        assertThat(mockBookService.getAllBooks().size()).isEqualTo(4 + initial);
     }
 
     @Test
     @DisplayName("checks if returns empty optional when book is not in repo")
     void findBookByIdMissingID() {
-
         var mockBookRepo = mock(BookRepo.class);
-
         var mockBookService = new ServiceBookImplementation(mockBookRepo);
 
         when(mockBookRepo.existsById(anyInt())).thenReturn(false);
@@ -71,7 +74,6 @@ class ServiceBookImplementationTest {
     @DisplayName("checks if returns empty optional when book is not in repo")
     void updateBookMissingID() {
         var mockBookRepo = mock(BookRepo.class);
-
         var mockBookService = new ServiceBookImplementation(mockBookRepo);
 
         when(mockBookRepo.existsById(anyInt())).thenReturn(false);
@@ -82,9 +84,6 @@ class ServiceBookImplementationTest {
     @Test
     @DisplayName("checks if updates book correctly")
     void updateBook() {
-        var mockBookRepo = inMemoryBookRepo();
-
-        var mockBookService = new ServiceBookImplementation(mockBookRepo);
 
         mockBookRepo.save(dummyBook(1,"old"));
         mockBookService.updateBook(1,dummyBook(1,"new"));
@@ -96,8 +95,6 @@ class ServiceBookImplementationTest {
     @Test
     @DisplayName("checks if function changes the book correctly")
     void changeBook() {
-        var mockBookRepo = inMemoryBookRepo();
-        var mockBookService = new ServiceBookImplementation(mockBookRepo);
 
         mockBookService.saveBook(
                 new Book(2,56,"oldName", "author",
@@ -126,7 +123,6 @@ class ServiceBookImplementationTest {
     @DisplayName("checks if returns empty optional when book is not in repo")
     void changeBookMissingID() {
         var mockBookRepo = mock(BookRepo.class);
-
         var mockBookService = new ServiceBookImplementation(mockBookRepo);
 
         when(mockBookRepo.existsById(anyInt())).thenReturn(false);
@@ -138,7 +134,6 @@ class ServiceBookImplementationTest {
     @DisplayName("checks if returns empty optional when book is not in repo")
     void deleteBookByIdMissingID() {
         var mockBookRepo = mock(BookRepo.class);
-
         var mockBookService = new ServiceBookImplementation(mockBookRepo);
 
         when(mockBookRepo.existsById(anyInt())).thenReturn(false);
@@ -150,9 +145,6 @@ class ServiceBookImplementationTest {
     @Test
     @DisplayName("checks if deletes the book from repo correctly")
     void deleteBookById() {
-        var mockBookRepo = inMemoryBookRepo();
-
-        var mockBookService = new ServiceBookImplementation(mockBookRepo);
 
         mockBookRepo.save(dummyBook(1,"desc"));
         mockBookService.deleteBookById(1);
@@ -163,8 +155,6 @@ class ServiceBookImplementationTest {
     @Test
     @DisplayName("checks if the books are properly filtered")
     void filterBooks(){
-        var mockBookRepo = inMemoryBookRepo();
-        var mockBookService = new ServiceBookImplementation(mockBookRepo);
 
         var book1 = new Book(1,56,"book1", "sandie",
                 null, BookCategory.FANTASY, BookType.AUDIOBOOK, 58.4, null);
@@ -197,10 +187,6 @@ class ServiceBookImplementationTest {
         assertThat(mockBookService.getFilteredBooks(null, null, 100d)).isEqualTo(Optional.of(List.of(book1, book2, book3, book4, book5, book6)));
         assertThat(mockBookService.getFilteredBooks(null, null, 30d)).isEqualTo(Optional.empty());
 
-    }
-
-    private MemoryBookRepo inMemoryBookRepo(){
-        return new MemoryBookRepo();
     }
 
     private Book dummyBook(int id, String desc){
