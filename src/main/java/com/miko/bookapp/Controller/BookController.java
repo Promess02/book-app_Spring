@@ -8,10 +8,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
@@ -73,10 +75,9 @@ public class BookController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Response> updateBook(@RequestBody Book book, @PathVariable long id){
-        Optional<Book> result = service.findBookById(id);
-        if(result.isPresent()){
-            try{
+    public ResponseEntity<Response> updateBook(@RequestBody Book book, @PathVariable long id) {
+            Optional<Book> result = service.findBookById(id);
+            if (result.isPresent()) {
                 return ResponseEntity.ok(
                         Response.builder()
                                 .message("a book with id: " + id + " updated")
@@ -86,20 +87,14 @@ public class BookController {
                                 .data(Map.of("books: ", service.updateBook(id, book)))
                                 .build()
                 );
-            }catch (IllegalArgumentException e){
-                log.info("bad enum value given");
-                return badEnumResponse();
             }
-
-        }
-        return idNotFoundResponse();
+            return idNotFoundResponse();
     }
 
     @PatchMapping("/update/{id}")
     public ResponseEntity<Response> changeBook(@RequestBody Book book, @PathVariable long id){
         Optional<Book> result = service.findBookById(id);
         if(result.isPresent()){
-            try{
                 return ResponseEntity.ok(
                         Response.builder()
                                 .message("a book with id: " + id + " changed")
@@ -109,10 +104,6 @@ public class BookController {
                                 .data(Map.of("books: ", service.changeBook(id, book)))
                                 .build()
                 );
-            }catch (IllegalArgumentException e){
-                log.info("bad enum value given");
-                return badEnumResponse();
-            }
         }
         return idNotFoundResponse();
     }
@@ -162,12 +153,14 @@ public class BookController {
         );
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
     ResponseEntity<Response> badEnumResponse(){
         return ResponseEntity.badRequest().body(
                 Response.builder()
                         .message("bad enum value given")
                         .httpStatus(HttpStatus.BAD_REQUEST)
                         .statusCode(HttpStatus.BAD_REQUEST.value())
+                        .data(Collections.emptyMap())
                         .build()
         );
     }
