@@ -3,6 +3,7 @@ package com.miko.bookapp.controller;
 import com.miko.bookapp.Dummy;
 import com.miko.bookapp.TestConfiguration;
 import com.miko.bookapp.model.Book;
+import com.miko.bookapp.model.Response;
 import com.miko.bookapp.repo.BookRepo;
 import com.miko.bookapp.service.ServiceBook;
 import org.junit.jupiter.api.Test;
@@ -17,8 +18,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ActiveProfiles("integration")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-//@TestPropertySource(locations = "classpath:application-integration.yml")
-//@Import(TestConfiguration.class)
 public class BookControllerE2ETest {
     @LocalServerPort
     private int port;
@@ -29,8 +28,6 @@ public class BookControllerE2ETest {
     @Autowired
     private BookRepo bookRepo;
 
-//    @Autowired
-//    private BundleRepo bundleRepo;
 
     @Autowired
     private ServiceBook serviceBook;
@@ -42,8 +39,8 @@ public class BookControllerE2ETest {
         serviceBook.saveBook(Dummy.dummyBook(1, "desc1"));
         serviceBook.saveBook(Dummy.dummyBook(2, "desc2"));
 
-        Book[] result = restTemplate.getForObject("http://localhost:" + port + "/books/list", Book[].class);
-        assertThat(result).hasSize(2 + initial);
+        Response result = restTemplate.getForObject("http://localhost:" + port + "/books/list", Response.class);
+        assertThat(result.getData().size()).isEqualTo(2 + initial);
     }
 
 }

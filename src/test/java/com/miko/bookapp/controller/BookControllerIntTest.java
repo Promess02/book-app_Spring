@@ -1,6 +1,9 @@
 package com.miko.bookapp.controller;
 
 import com.miko.bookapp.Dummy;
+import com.miko.bookapp.enums.BookCategory;
+import com.miko.bookapp.enums.BookType;
+import com.miko.bookapp.model.Book;
 import com.miko.bookapp.service.ServiceBook;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,6 +20,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfiles("integration")
@@ -127,6 +133,34 @@ public class BookControllerIntTest {
     }
 
     @Test
+    void httpPatch_filterBooks(){
+        serviceBook.saveBook(new Book(1,56,"name1", "author1", null, BookCategory.FANTASY, BookType.HARDCOVER, 30.5d,null));
+        serviceBook.saveBook(new Book(2,34,"name2", "author2", null,BookCategory.DRAMA, BookType.AUDIOBOOK, 60.5d,null));
+        serviceBook.saveBook(new Book(3,87,"name3", "author3", null,BookCategory.HORROR, BookType.EBOOK, 30.5d,null));
+
+        var json = new JSONObject();
+        try {
+            json.put("bookCategory", "fantasy");
+            json.put("bookType", "hardcover");
+            json.put("prize", 80.4);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        try{
+            mockMvc.perform(MockMvcRequestBuilders.get("/books/filter")
+                            .contentType(APPLICATION_JSON_UTF8)
+                            .content(json.toString()))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andExpect(MockMvcResultMatchers.content().string(containsString("List Of filtered Books retrieved")))
+                    .andExpect(MockMvcResultMatchers.content().string(containsString("author1")))
+                    .andExpect(MockMvcResultMatchers.content().string(containsString("hardcover")));
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
     void httpDelete_deleteBook(){
         serviceBook.saveBook(Dummy.dummyBook(1, "old desc"));
         try{
@@ -154,6 +188,17 @@ public class BookControllerIntTest {
                             .content(json.toString()))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andExpect(MockMvcResultMatchers.content().string(containsString("bad enum value given")));
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    void checksIfReturnsNoIdResponse(){
+        try{
+            mockMvc.perform(MockMvcRequestBuilders.get("/books/list/145"))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andExpect(MockMvcResultMatchers.content().string(containsString("id not found")));
         }catch (Exception e){
             throw new RuntimeException(e);
         }

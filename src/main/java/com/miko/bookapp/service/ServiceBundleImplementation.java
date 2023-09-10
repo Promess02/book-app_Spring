@@ -140,8 +140,9 @@ public class ServiceBundleImplementation implements ServiceBundle{
             if(bundleOptional.isEmpty()) return Optional.empty();
             var bundle = bundleOptional.get();
             bundle.setDiscount(newDiscount);
-            bundleRepo.save(bundle);
+            var result = bundleRepo.save(bundle);
             log.info("bundle discount changed");
+            return Optional.of(result);
         }
         return Optional.empty();
     }
