@@ -34,13 +34,6 @@ public class TestConfiguration {
     }
 
     @Bean
-    public ObjectMapper testObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        return objectMapper;
-    }
-
-    @Bean
     @Primary
     BookRepo testBookRepo(){
         return new BookRepo() {

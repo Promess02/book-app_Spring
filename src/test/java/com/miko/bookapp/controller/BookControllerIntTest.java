@@ -7,6 +7,7 @@ import com.miko.bookapp.model.Book;
 import com.miko.bookapp.service.ServiceBook;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,13 +17,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
 import java.nio.charset.StandardCharsets;
-
 import static org.hamcrest.Matchers.containsString;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfiles("integration")
@@ -34,6 +30,11 @@ public class BookControllerIntTest {
     private ServiceBook serviceBook;
 
     public static final MediaType APPLICATION_JSON_UTF8 = new MediaType(MediaType.APPLICATION_JSON.getType(), MediaType.APPLICATION_JSON.getSubtype(), StandardCharsets.UTF_8);
+
+    @BeforeEach
+    public void setUp(){
+        serviceBook.deleteAllBooks();
+    }
 
     @Test
     void httpGet_returnsGivenBook(){
@@ -203,7 +204,5 @@ public class BookControllerIntTest {
             throw new RuntimeException(e);
         }
     }
-
-
 
 }

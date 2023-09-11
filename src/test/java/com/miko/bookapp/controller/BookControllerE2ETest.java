@@ -31,7 +31,6 @@ public class BookControllerE2ETest {
     @Autowired
     private ServiceBook serviceBook;
 
-    //TODO - fix E2E Test - restTemplate not mapping to Response class well
     @Test
     void httpGet_returnsAllBooks(){
         var initial = serviceBook.getAllBooks().size();
@@ -43,8 +42,8 @@ public class BookControllerE2ETest {
 
         assertEquals(response.getStatusCode(), HttpStatus.OK);
         assertThat(response.getBody()).contains("desc1", "desc2");
-
-//        assertEquals(response.getBody().getData().size(), initial +2);
     }
+
+
 
 }

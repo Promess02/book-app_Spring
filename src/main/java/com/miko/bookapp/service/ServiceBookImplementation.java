@@ -93,4 +93,11 @@ public class ServiceBookImplementation implements ServiceBook{
         if (result.isEmpty()) return Optional.empty();
         else return Optional.of(result);
     }
+
+    @Override
+    public void deleteAllBooks() {
+        bookRepo.deleteAll();
+        log.info("all books deleted");
+    }
+
 }
