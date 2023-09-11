@@ -1,70 +1,80 @@
 package com.miko.bookapp.service;
 
-import com.miko.bookapp.TestConfiguration;
 import com.miko.bookapp.enums.BookCategory;
 import com.miko.bookapp.enums.BookType;
 import com.miko.bookapp.model.Book;
 import com.miko.bookapp.repo.BookRepo;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
+import org.junit.jupiter.api.*;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@ActiveProfiles("integration")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(TestConfiguration.class)
-class serviceBookImplementationTestConfig {
-    @Autowired
-    BookRepo mockBookRepo;
+class serviceBookImplementationTest {
+    private static BookRepo bookRepo;
+    private static ServiceBook bookService;
 
-    @Autowired
-    ServiceBook mockBookService;
+    @Mock
+    private BookRepo mockBookRepo;
+    private ServiceBook mockBookService;
+    private AutoCloseable autoCloseable;
+
+    @BeforeAll
+    static void setUp(){
+        bookRepo = new MemoryBookRepo();
+        bookService = new ServiceBookImplementation(bookRepo);
+    }
+
+    @BeforeEach
+    void setUpMock(){
+        autoCloseable = MockitoAnnotations.openMocks(this);
+        mockBookService = new ServiceBookImplementation(mockBookRepo);
+    }
+
+
+    @AfterEach
+    void tearDown() throws Exception {
+        bookRepo.deleteAll();
+        autoCloseable.close();
+    }
 
     @Test
     @DisplayName("checks if returns the book from repo when found")
     void findBookById() {
 
-        mockBookService.saveBook(dummyBook(1,"desc"));
+        bookService.saveBook(dummyBook(1,"desc"));
 
         //checks if book is saved to repo
-        assertThat(mockBookRepo.existsById(1)).isEqualTo(true);
+        assertThat(bookRepo.existsById(1)).isEqualTo(true);
         //checks if function can find a book that is saved to repo
-        assertThat(mockBookService.findBookById(1).isPresent()).isEqualTo(true);
+        assertThat(bookService.findBookById(1).isPresent()).isEqualTo(true);
     }
 
     @Test
     @DisplayName("checks if returns all books")
     void findAllBooks() {
 
-        int initial = mockBookRepo.findAll().size();
+        int initial = bookRepo.findAll().size();
 
-        mockBookRepo.save(dummyBook(initial+2, "desc1"));
-        mockBookRepo.save(dummyBook(initial+3, "desc2"));
-        mockBookRepo.save(dummyBook(initial+4, "desc3"));
-        mockBookRepo.save(dummyBook(initial+5, "desc4"));
+        bookRepo.save(dummyBook(initial+2, "desc1"));
+        bookRepo.save(dummyBook(initial+3, "desc2"));
+        bookRepo.save(dummyBook(initial+4, "desc3"));
+        bookRepo.save(dummyBook(initial+5, "desc4"));
 
         //checks if function finds any books
-        assertThat(mockBookService.getAllBooks().isEmpty()).isEqualTo(false);
+        assertThat(bookService.getAllBooks().isEmpty()).isEqualTo(false);
         //checks if function finds all the books saved in repository
-        assertThat(mockBookService.getAllBooks().size()).isEqualTo(4 + initial);
+        assertThat(bookService.getAllBooks().size()).isEqualTo(4 + initial);
     }
 
     @Test
     @DisplayName("checks if returns empty optional when book is not in repo")
     void findBookByIdMissingID() {
-        var mockBookRepo = mock(BookRepo.class);
-        var mockBookService = new ServiceBookImplementation(mockBookRepo);
-
         when(mockBookRepo.existsById(anyInt())).thenReturn(false);
         //checks if function returns empty optional when book is not found
         assertThat(mockBookService.findBookById(1).isPresent()).isEqualTo(false);
@@ -73,9 +83,6 @@ class serviceBookImplementationTestConfig {
     @Test
     @DisplayName("checks if returns empty optional when book is not in repo")
     void updateBookMissingID() {
-        var mockBookRepo = mock(BookRepo.class);
-        var mockBookService = new ServiceBookImplementation(mockBookRepo);
-
         when(mockBookRepo.existsById(anyInt())).thenReturn(false);
         //checks if function returns empty optional when book is not found
         assertThat(mockBookService.updateBook(1, dummyBook(1,"old")).isPresent()).isEqualTo(false);
@@ -85,10 +92,9 @@ class serviceBookImplementationTestConfig {
     @DisplayName("checks if updates book correctly")
     void updateBook() {
 
-        mockBookRepo.save(dummyBook(1,"old"));
-        mockBookService.updateBook(1,dummyBook(1,"new"));
-
-        if(mockBookRepo.findById(1).isPresent()) assertThat(mockBookRepo.findById(1).get().getDescription()).isEqualTo("new");
+        bookRepo.save(dummyBook(1,"old"));
+        bookService.updateBook(1,dummyBook(1,"new"));
+        if(bookRepo.findById(1).isPresent()) assertThat(bookRepo.findById(1).get().getDescription()).isEqualTo("new");
 
     }
 
@@ -96,18 +102,18 @@ class serviceBookImplementationTestConfig {
     @DisplayName("checks if function changes the book correctly")
     void changeBook() {
 
-        mockBookService.saveBook(
+        bookService.saveBook(
                 new Book(2,56,"oldName", "author",
                         null, null, BookType.AUDIOBOOK,
                         45.6d, null));
 
-        mockBookService.changeBook(2, new Book(2,0,
+        bookService.changeBook(2, new Book(2,0,
                 null, null,
                 "new description",
                 BookCategory.FANTASY, null, null, null));
 
-        if(mockBookRepo.findById(2).isPresent()){
-            var book = mockBookRepo.findById(2).get();
+        if(bookRepo.findById(2).isPresent()){
+            var book = bookRepo.findById(2).get();
             assertThat(book.getIsbn()).isEqualTo(56);
             assertThat(book.getName()).isEqualTo("oldName");
             assertThat(book.getAuthor()).isEqualTo("author");
@@ -122,9 +128,6 @@ class serviceBookImplementationTestConfig {
     @Test
     @DisplayName("checks if returns empty optional when book is not in repo")
     void changeBookMissingID() {
-        var mockBookRepo = mock(BookRepo.class);
-        var mockBookService = new ServiceBookImplementation(mockBookRepo);
-
         when(mockBookRepo.existsById(anyInt())).thenReturn(false);
         //checks if function returns empty optional when book is not found
         assertThat(mockBookService.changeBook(2, dummyBook(2,"old")).isPresent()).isEqualTo(false);
@@ -133,9 +136,6 @@ class serviceBookImplementationTestConfig {
     @Test
     @DisplayName("checks if returns empty optional when book is not in repo")
     void deleteBookByIdMissingID() {
-        var mockBookRepo = mock(BookRepo.class);
-        var mockBookService = new ServiceBookImplementation(mockBookRepo);
-
         when(mockBookRepo.existsById(anyInt())).thenReturn(false);
         //checks if function returns empty optional when book is not found
         assertThat(mockBookService.deleteBookById(1).isPresent()).isEqualTo(false);
@@ -146,10 +146,10 @@ class serviceBookImplementationTestConfig {
     @DisplayName("checks if deletes the book from repo correctly")
     void deleteBookById() {
 
-        mockBookRepo.save(dummyBook(1,"desc"));
-        mockBookService.deleteBookById(1);
+        bookRepo.save(dummyBook(1,"desc"));
+        bookService.deleteBookById(1);
         //checks if function returns empty optional when book is not found
-        assertThat(mockBookRepo.existsById(1)).isEqualTo(false);
+        assertThat(bookRepo.existsById(1)).isEqualTo(false);
     }
 
     @Test
@@ -169,23 +169,23 @@ class serviceBookImplementationTestConfig {
         var book6 = new Book(6,83,"book6", "barry", null,null,
                 null, 85.2,null);
 
-        mockBookRepo.save(book1);
-        mockBookRepo.save(book2);
-        mockBookRepo.save(book3);
-        mockBookRepo.save(book4);
-        mockBookRepo.save(book5);
-        mockBookRepo.save(book6);
+        bookRepo.save(book1);
+        bookRepo.save(book2);
+        bookRepo.save(book3);
+        bookRepo.save(book4);
+        bookRepo.save(book5);
+        bookRepo.save(book6);
 
-        assertThat(mockBookService.getFilteredBooks("fantasy", "audiobook", 60d)).isEqualTo(Optional.of(List.of(book1, book5)));
-        assertThat(mockBookService.getFilteredBooks("fantasy", "audiobook", 50d)).isEqualTo(Optional.of(List.of(book5)));
-        assertThat(mockBookService.getFilteredBooks("fantasy", "hardcover", 50d)).isEqualTo(Optional.of(List.of(book2)));
-        assertThat(mockBookService.getFilteredBooks("drama", "paperback", 100d)).isEqualTo(Optional.of(List.of(book4)));
-        assertThat(mockBookService.getFilteredBooks("crime", "audiobook", 80d)).isEqualTo(Optional.of(List.of(book3)));
-        assertThat(mockBookService.getFilteredBooks("crime", "audiobook", 30d)).isEqualTo(Optional.empty());
-        assertThat(mockBookService.getFilteredBooks(null, "audiobook", 100d)).isEqualTo(Optional.of(List.of(book1, book3,book5)));
-        assertThat(mockBookService.getFilteredBooks("fantasy", null, 100d)).isEqualTo(Optional.of(List.of(book1, book2,book5)));
-        assertThat(mockBookService.getFilteredBooks(null, null, 100d)).isEqualTo(Optional.of(List.of(book1, book2, book3, book4, book5, book6)));
-        assertThat(mockBookService.getFilteredBooks(null, null, 30d)).isEqualTo(Optional.empty());
+        assertThat(bookService.getFilteredBooks("fantasy", "audiobook", 60d)).isEqualTo(Optional.of(List.of(book1, book5)));
+        assertThat(bookService.getFilteredBooks("fantasy", "audiobook", 50d)).isEqualTo(Optional.of(List.of(book5)));
+        assertThat(bookService.getFilteredBooks("fantasy", "hardcover", 50d)).isEqualTo(Optional.of(List.of(book2)));
+        assertThat(bookService.getFilteredBooks("drama", "paperback", 100d)).isEqualTo(Optional.of(List.of(book4)));
+        assertThat(bookService.getFilteredBooks("crime", "audiobook", 80d)).isEqualTo(Optional.of(List.of(book3)));
+        assertThat(bookService.getFilteredBooks("crime", "audiobook", 30d)).isEqualTo(Optional.empty());
+        assertThat(bookService.getFilteredBooks(null, "audiobook", 100d)).isEqualTo(Optional.of(List.of(book1, book3,book5)));
+        assertThat(bookService.getFilteredBooks("fantasy", null, 100d)).isEqualTo(Optional.of(List.of(book1, book2,book5)));
+        assertThat(bookService.getFilteredBooks(null, null, 100d)).isEqualTo(Optional.of(List.of(book1, book2, book3, book4, book5, book6)));
+        assertThat(bookService.getFilteredBooks(null, null, 30d)).isEqualTo(Optional.empty());
 
     }
 
