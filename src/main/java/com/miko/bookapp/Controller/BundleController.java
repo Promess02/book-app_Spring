@@ -51,6 +51,19 @@ public class BundleController {
         );
     }
 
+    @GetMapping("/listBooks/{id}")
+    public ResponseEntity<Response> listBooksInBundle(@PathVariable long id){
+        return ResponseEntity.ok(
+                Response.builder()
+                        .message("List Of Books For Bundle retrieved")
+                        .timestamp(LocalDateTime.now())
+                        .httpStatus(HttpStatus.OK)
+                        .statusCode(HttpStatus.OK.value())
+                        .data(Map.of("books: ", service.getListOfBooksInBundle(id)))
+                        .build()
+        );
+    }
+
 
 
     @PostMapping("/create")

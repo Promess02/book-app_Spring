@@ -120,7 +120,7 @@ class serviceBookImplementationTest {
             assertThat(book.getDescription()).isEqualTo("new description");
             assertThat(book.getBookCategory()).isEqualTo(BookCategory.FANTASY);
             assertThat(book.getBookType()).isEqualTo(BookType.AUDIOBOOK);
-            assertThat(book.getPrize()).isEqualTo(45.6d);
+            assertThat(book.getPrice()).isEqualTo(45.6d);
         }else throw new RuntimeException("couldn't find the book in the repo");
 
     }

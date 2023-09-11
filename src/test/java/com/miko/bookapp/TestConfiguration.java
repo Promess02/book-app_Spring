@@ -48,7 +48,7 @@ public class TestConfiguration {
             public Book save(Book entity) {
                 if (entity.getId()==0){
                     try{
-                        var field = Book.class.getDeclaredField("id");
+                        var field = Book.class.getSuperclass().getDeclaredField("id");
                         field.setAccessible(true);
                         field.set(entity,++index);
                     }catch (NoSuchFieldException | IllegalAccessException e) {
@@ -106,9 +106,9 @@ public class TestConfiguration {
 
             @Override
             public BookBundle save(BookBundle entity) {
-                if (entity.getBundleID()==0){
+                if (entity.getId()==0){
                     try{
-                        var field = BookBundle.class.getDeclaredField("bundleID");
+                        var field = BookBundle.class.getSuperclass().getDeclaredField("id");
                         field.setAccessible(true);
                         field.set(entity,++index);
                     }catch (NoSuchFieldException | IllegalAccessException e) {
@@ -116,7 +116,7 @@ public class TestConfiguration {
                     }
                 }
 
-                map.put(entity.getBundleID(), entity);
+                map.put(entity.getId(), entity);
 
                 return entity;
             }
@@ -143,7 +143,7 @@ public class TestConfiguration {
 
             @Override
             public void delete(BookBundle entity) {
-                map.remove(entity.getBundleID(),entity);
+                map.remove(entity.getId(),entity);
             }
 
             @Override

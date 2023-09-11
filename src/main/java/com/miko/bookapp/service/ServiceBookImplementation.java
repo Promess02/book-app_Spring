@@ -1,5 +1,6 @@
 package com.miko.bookapp.service;
 
+import com.miko.bookapp.Utils;
 import com.miko.bookapp.enums.BookCategory;
 import com.miko.bookapp.enums.BookType;
 import com.miko.bookapp.model.Book;
@@ -51,8 +52,8 @@ public class ServiceBookImplementation implements ServiceBook{
     @Override
     public Optional<Book> changeBook(long id, Book book){
         if(bookRepo.findById(id).isPresent()){
-            var bookClass = book.getClass();
-            Field[] fields= bookClass.getDeclaredFields();
+//            var bookClass = book.getClass();
+            Field[] fields= Utils.extractFields(book);
             Book result = bookRepo.findById(id).get();
             for(Field field: fields){
                 field.setAccessible(true);
@@ -67,7 +68,6 @@ public class ServiceBookImplementation implements ServiceBook{
             return Optional.of(result);
         }else return Optional.empty();
     }
-
     @Override
     public Optional<Book> deleteBookById(long id) {
         if (bookRepo.existsById(id)){
@@ -86,7 +86,7 @@ public class ServiceBookImplementation implements ServiceBook{
                 .filter(book ->
                         (category == null || (book.getBookCategory() != null && book.getBookCategory().equals(bookCategory)))
                                 && (type == null || (book.getBookType() != null && book.getBookType().equals(bookType)))
-                                && (prizeMax == null || (book.getPrize() != null && book.getPrize() <= prizeMax))
+                                && (prizeMax == null || (book.getPrice() != null && book.getPrice() <= prizeMax))
                 )
                 .collect(Collectors.toList());
 

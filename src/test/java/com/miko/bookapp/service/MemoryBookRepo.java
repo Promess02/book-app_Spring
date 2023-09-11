@@ -17,7 +17,7 @@ public class MemoryBookRepo implements BookRepo {
     public Book save(Book entity) {
         if (entity.getId()==0){
             try{
-                var field = Book.class.getDeclaredField("id");
+                var field = Book.class.getSuperclass().getDeclaredField("id");
                 field.setAccessible(true);
                 field.set(entity,++index);
             }catch (NoSuchFieldException | IllegalAccessException e) {

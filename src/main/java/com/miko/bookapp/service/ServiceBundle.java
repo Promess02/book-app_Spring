@@ -1,5 +1,6 @@
 package com.miko.bookapp.service;
 
+import com.miko.bookapp.model.Book;
 import com.miko.bookapp.model.BookBundle;
 
 import java.util.List;
@@ -21,4 +22,6 @@ public interface ServiceBundle {
     Optional<BookBundle> deleteBookFromBundle(long bundleID, long bookID);
 
     Optional<BookBundle> changeBundleDiscount(long bundleID, double newDiscount);
+
+    Optional<List<Book>> getListOfBooksInBundle(long bundleID);
 }

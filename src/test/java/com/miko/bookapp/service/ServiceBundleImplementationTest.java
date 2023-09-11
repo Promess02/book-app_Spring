@@ -128,7 +128,7 @@ class ServiceBundleImplementationTest {
         if(memoryMockBundleService.findBundleById(1).isPresent()){
             assertThat(memoryMockBundleService.findBundleById(1).get().getDescription()).isEqualTo("new");
             assertThat(memoryMockBundleService.findBundleById(1).get().getDiscount()).isEqualTo(0.38d);
-            assertThat(memoryMockBundleService.findBundleById(1).get().getCombinedPrize()).isEqualTo(0d);
+            assertThat(memoryMockBundleService.findBundleById(1).get().getPrice()).isEqualTo(0d);
             assertThat(memoryMockBundleService.findBundleById(1).get().getBooks()).isEqualTo(Collections.emptySet());
         }else throw new RuntimeException("couldn't find the bundle with id 1");
     }
@@ -173,7 +173,7 @@ class ServiceBundleImplementationTest {
             //checking if the book has a reference to the bundle
             assertThat(book.getBookBundle()).isEqualTo(bundle);
             //checking if the prize calculated correctly
-            assertThat(bundle.getCombinedPrize()).isEqualTo((1-bundle.getDiscount())*book.getPrize());
+            assertThat(bundle.getPrice()).isEqualTo((1-bundle.getDiscount())*book.getPrice());
             //saving a new book
             var newBook = dummyBook(2,"The Well Of Ascension");
             memoryBookRepo.save(newBook);
@@ -181,7 +181,7 @@ class ServiceBundleImplementationTest {
             memoryBundleService.addBookToBundle(1,2);
             assertThat(memoryBookRepo.findById(2).get().getBookBundle()).isEqualTo(bundle);
             //checking if the prize of the bundle recalculated correctly
-            assertThat(memoryBundleRepo.findById(1).get().getCombinedPrize()).isEqualTo((1-bundle.getDiscount())*(book.getPrize()+ newBook.getPrize()));
+            assertThat(memoryBundleRepo.findById(1).get().getPrice()).isEqualTo((1-bundle.getDiscount())*(book.getPrice()+ newBook.getPrice()));
         }else throw new RuntimeException("book or bundle not found in the repos");
 
     }
