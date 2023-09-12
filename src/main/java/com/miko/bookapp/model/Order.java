@@ -73,4 +73,22 @@ public class Order {
     public void setTotalAmount(double totalAmount) {
         this.totalAmount = totalAmount;
     }
+
+    public void addOrderItem(OrderItem orderItem){
+        orderItems.add(orderItem);
+        calculateOrderTotalAmount();
+    }
+    public void removeOrderItem(OrderItem orderItem){
+        orderItems.remove(orderItem);
+        calculateOrderTotalAmount();
+    }
+
+    private void calculateOrderTotalAmount(){
+        double temp = 0d;
+        for(OrderItem orderItem: orderItems){
+            temp = temp + orderItem.getTotalPrice();
+        }
+        totalAmount = temp;
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.miko.bookapp.Controller;
 
+import com.miko.bookapp.Utils;
 import com.miko.bookapp.model.Book;
 import com.miko.bookapp.model.FilterObject;
 import com.miko.bookapp.model.Response;
@@ -52,7 +53,7 @@ public class BookController {
                             .build()
             );
         }
-        return idNotFoundResponse();
+        return Utils.idNotFoundResponse(Book.class);
 
     }
 
@@ -88,7 +89,7 @@ public class BookController {
                                 .build()
                 );
             }
-            return idNotFoundResponse();
+            return Utils.idNotFoundResponse(Book.class);
     }
 
     @PatchMapping("/update/{id}")
@@ -105,7 +106,7 @@ public class BookController {
                                 .build()
                 );
         }
-        return idNotFoundResponse();
+        return Utils.idNotFoundResponse(Book.class);
     }
 
     @DeleteMapping("/delete/{id}")
@@ -123,7 +124,7 @@ public class BookController {
             );
         }
 
-        return idNotFoundResponse();
+        return Utils.idNotFoundResponse(Book.class);
     }
 
     @GetMapping("/filter")
@@ -139,16 +140,6 @@ public class BookController {
                         .httpStatus(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .data(Map.of("books: ", service.getFilteredBooks(category, type, prizeMax)))
-                        .build()
-        );
-    }
-
-    ResponseEntity<Response> idNotFoundResponse(){
-        return ResponseEntity.badRequest().body(
-                Response.builder()
-                        .message("id not found")
-                        .httpStatus(HttpStatus.BAD_REQUEST)
-                        .statusCode(HttpStatus.BAD_REQUEST.value())
                         .build()
         );
     }

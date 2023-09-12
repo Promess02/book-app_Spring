@@ -1,5 +1,6 @@
 package com.miko.bookapp.Controller;
 
+import com.miko.bookapp.Utils;
 import com.miko.bookapp.model.BookBundle;
 import com.miko.bookapp.model.Response;
 import com.miko.bookapp.service.ServiceBundle;
@@ -35,7 +36,7 @@ public class BundleController {
                             .build()
             );
         }
-        return idNotFoundResponse();
+        return Utils.idNotFoundResponse(BookBundle.class);
 
     }
     @GetMapping("/list")
@@ -93,7 +94,7 @@ public class BundleController {
                             .build()
             );
         }
-        return idNotFoundResponse();
+        return Utils.idNotFoundResponse(BookBundle.class);
     }
 
     @PatchMapping("/update/{id}")
@@ -110,7 +111,7 @@ public class BundleController {
                             .build()
             );
         }
-        return idNotFoundResponse();
+        return Utils.idNotFoundResponse(BookBundle.class);
     }
 
     @DeleteMapping("/delete/{id}")
@@ -128,7 +129,7 @@ public class BundleController {
             );
         }
 
-        return idNotFoundResponse();
+        return Utils.idNotFoundResponse(BookBundle.class);
     }
 
     @PatchMapping("/addBook/{bundleID}/{bookID}")
@@ -145,7 +146,7 @@ public class BundleController {
                             .build()
             );
         }
-        return idNotFoundResponse();
+        return Utils.idNotFoundResponse(BookBundle.class);
     }
 
     @PatchMapping("/deleteBook/{bookID}/{bundleID}")
@@ -162,7 +163,7 @@ public class BundleController {
                             .build()
             );
         }
-        return idNotFoundResponse();
+        return Utils.idNotFoundResponse(BookBundle.class);
     }
 
     @PatchMapping("/discount/{id}/{value}")
@@ -179,16 +180,6 @@ public class BundleController {
                         .build()
             );
         }
-        return idNotFoundResponse();
-    }
-
-    ResponseEntity<Response> idNotFoundResponse(){
-        return ResponseEntity.badRequest().body(
-                Response.builder()
-                        .message("id not found")
-                        .httpStatus(HttpStatus.BAD_REQUEST)
-                        .statusCode(HttpStatus.BAD_REQUEST.value())
-                        .build()
-        );
+        return Utils.idNotFoundResponse(BookBundle.class);
     }
 }

@@ -41,6 +41,7 @@ public class OrderItem {
 
     public void setProduct(Product product) {
         this.product = product;
+        calculateTotalPrice();
     }
 
     public int getQuantity() {
@@ -49,13 +50,15 @@ public class OrderItem {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+        calculateTotalPrice();
     }
 
     public double getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(double totalPrice) {
-        this.totalPrice = totalPrice;
+
+    private void calculateTotalPrice(){
+        totalPrice = quantity * product.getPrice();
     }
 }
