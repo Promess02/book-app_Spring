@@ -3,6 +3,7 @@ package com.miko.bookapp.service;
 import com.miko.bookapp.Utils;
 import com.miko.bookapp.model.Book;
 import com.miko.bookapp.model.BookBundle;
+import com.miko.bookapp.model.ServiceResponse;
 import com.miko.bookapp.repo.BookRepo;
 import com.miko.bookapp.repo.BundleRepo;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,7 @@ public class ServiceBundleImplementation implements ServiceBundle{
         return bundleRepo.save(bundle);
     }
 
-    public Optional<List<Book>> getListOfBooksInBundle(long bundleID){
+    public ServiceResponse<List<Book>> getListOfBooksInBundle(long bundleID){
         if(bundleRepo.existsById(bundleID)){
            BookBundle bundle = bundleRepo.findById(bundleID).isPresent()?bundleRepo.findById(bundleID).get():null;
 
@@ -50,10 +51,10 @@ public class ServiceBundleImplementation implements ServiceBundle{
            for(Book book : allBooks){
                if(book.getBookBundle().equals(bundle)) result.add(book);
            }
-           if(result.isEmpty()) return Optional.empty();
-           return Optional.of(result);
+           if(result.isEmpty()) return new ServiceResponse<>(Optional.empty(), Utils.NO_BOOKS_FOUND);
+           return new ServiceResponse<>(Optional.of(result), Utils.BOOK_RETRIEVED);
         }
-        return Optional.empty();
+        return new ServiceResponse<>(Optional.empty(), Utils.ID_NOT_FOUND);
     }
 
     @Override

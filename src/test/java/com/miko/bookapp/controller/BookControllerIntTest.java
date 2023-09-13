@@ -199,7 +199,7 @@ public class BookControllerIntTest {
         try{
             mockMvc.perform(MockMvcRequestBuilders.get("/books/list/145"))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                    .andExpect(MockMvcResultMatchers.content().string(containsString("id not found")));
+                    .andExpect(MockMvcResultMatchers.content().string(containsString("id of class: Book not found")));
         }catch (Exception e){
             throw new RuntimeException(e);
         }

@@ -25,76 +25,39 @@ public class BundleController {
     @GetMapping("/list/{id}")
     public ResponseEntity<Response> getBundleById(@PathVariable long id){
         Optional<BookBundle> result = service.findBundleById(id);
-        if(result.isPresent()){
-            return ResponseEntity.ok(
-                    Response.builder()
-                            .message("a bundle with id: " + id + " retrieved")
-                            .timestamp(LocalDateTime.now())
-                            .httpStatus(HttpStatus.OK)
-                            .statusCode(HttpStatus.OK.value())
-                            .data(Map.of("bundle: ", result.get()))
-                            .build()
-            );
-        }
-        return Utils.idNotFoundResponse(BookBundle.class);
+        return result.map(bookBundle -> ResponseUtil.okResponse("a bundle with id: " + id + " retrieved", "bundle", bookBundle))
+                .orElseGet(() -> ResponseUtil.idNotFoundResponse(BookBundle.class));
 
     }
     @GetMapping("/list")
     public ResponseEntity<Response> listBundles(){
-        return ResponseEntity.ok(
-                Response.builder()
-                        .message("List Of Bundles retrieved")
-                        .timestamp(LocalDateTime.now())
-                        .httpStatus(HttpStatus.OK)
-                        .statusCode(HttpStatus.OK.value())
-                        .data(Map.of("bundles: ", service.getAllBundles()))
-                        .build()
-        );
+        return ResponseUtil.okResponse("List Of Bundles retrieved", "bundles", service.getAllBundles());
     }
 
     @GetMapping("/listBooks/{id}")
     public ResponseEntity<Response> listBooksInBundle(@PathVariable long id){
-        return ResponseEntity.ok(
-                Response.builder()
-                        .message("List Of Books For Bundle retrieved")
-                        .timestamp(LocalDateTime.now())
-                        .httpStatus(HttpStatus.OK)
-                        .statusCode(HttpStatus.OK.value())
-                        .data(Map.of("books: ", service.getListOfBooksInBundle(id)))
-                        .build()
-        );
+        var result = service.getListOfBooksInBundle(id);
+
+        if (result.getMessage().equals(Utils.ID_NOT_FOUND)) return ResponseUtil.idNotFoundResponse(BookBundle.class);
+        if(result.getMessage().equals(Utils.NO_BOOKS_FOUND)) return ResponseUtil.badRequestResponse(Utils.NO_BOOKS_FOUND);
+        if(result.getData().isPresent()) return ResponseUtil.okResponse("List Of Books For Bundle with id: " + id + " retrieved", "books", result.getData().get());
+        return ResponseUtil.somethingWentWrongResponse();
     }
-
-
 
     @PostMapping("/create")
     public ResponseEntity<Response> createBundle(@RequestBody @Valid BookBundle bookBundle){
-        return ResponseEntity.ok(
-                Response.builder()
-                        .message("a new book bundle added")
-                        .timestamp(LocalDateTime.now())
-                        .httpStatus(HttpStatus.CREATED)
-                        .statusCode(HttpStatus.CREATED.value())
-                        .data(Map.of("bundle: ", service.saveBundle(bookBundle)))
-                        .build()
-        );
+        var result = service.saveBundle(bookBundle);
+        return ResponseUtil.okResponse("a new book bundle added", "bundle", result);
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<Response> updateBundle(@RequestBody BookBundle bundle, @PathVariable long id){
         Optional<BookBundle> result = service.findBundleById(id);
         if(result.isPresent()){
-            return ResponseEntity.ok(
-                    Response.builder()
-                            .message("a bundle with id: " + id + " updated")
-                            .timestamp(LocalDateTime.now())
-                            .httpStatus(HttpStatus.OK)
-                            .statusCode(HttpStatus.OK.value())
-                            .data(Map.of("bundle: ", service.updateBundle(id, bundle)))
-                            .build()
-            );
+            return ResponseUtil.okResponse("a bundle with id: " + id + " updated",
+                    "bundle", service.updateBundle(id, bundle));
         }
-        return Utils.idNotFoundResponse(BookBundle.class);
+        return ResponseUtil.idNotFoundResponse(BookBundle.class);
     }
 
     @PatchMapping("/update/{id}")
@@ -111,75 +74,47 @@ public class BundleController {
                             .build()
             );
         }
-        return Utils.idNotFoundResponse(BookBundle.class);
+        return ResponseUtil.idNotFoundResponse(BookBundle.class);
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Response> deleteBundleById(@PathVariable long id){
         Optional<BookBundle> result = service.findBundleById(id);
         if(result.isPresent()){
-            return ResponseEntity.ok(
-                    Response.builder()
-                            .message("a bundle with id: " + id + " deleted")
-                            .timestamp(LocalDateTime.now())
-                            .httpStatus(HttpStatus.OK)
-                            .statusCode(HttpStatus.OK.value())
-                            .data(Map.of("bundle: ", service.deleteBundleById(id)))
-                            .build()
-            );
+            return ResponseUtil.okResponse("a bundle with id: " + id + " deleted",
+                    "bundle", service.deleteBundleById(id));
         }
-
-        return Utils.idNotFoundResponse(BookBundle.class);
+        return ResponseUtil.idNotFoundResponse(BookBundle.class);
     }
 
     @PatchMapping("/addBook/{bundleID}/{bookID}")
     public ResponseEntity<Response> addBookToBundle(@PathVariable long bookID, @PathVariable long bundleID){
         Optional<BookBundle> result = service.findBundleById(bundleID);
         if(result.isPresent()){
-            return ResponseEntity.ok(
-                    Response.builder()
-                            .message("added a book to bundle with id: " + bundleID)
-                            .timestamp(LocalDateTime.now())
-                            .httpStatus(HttpStatus.OK)
-                            .statusCode(HttpStatus.OK.value())
-                            .data(Map.of("bundle: ", service.addBookToBundle(bundleID, bookID)))
-                            .build()
-            );
+            return ResponseUtil.okResponse("added a book to bundle with id: " + bundleID,
+                    "bundle", service.addBookToBundle(bundleID, bookID));
         }
-        return Utils.idNotFoundResponse(BookBundle.class);
+        return ResponseUtil.idNotFoundResponse(BookBundle.class);
     }
 
     @PatchMapping("/deleteBook/{bookID}/{bundleID}")
     public ResponseEntity<Response> deleteBookFromBundle(@PathVariable long bookID, @PathVariable long bundleID){
         Optional<BookBundle> result = service.findBundleById(bundleID);
+
         if(result.isPresent()){
-            return ResponseEntity.ok(
-                    Response.builder()
-                            .message("deleted a book with id: " + bookID + " from bundle with id: " + bundleID)
-                            .timestamp(LocalDateTime.now())
-                            .httpStatus(HttpStatus.OK)
-                            .statusCode(HttpStatus.OK.value())
-                            .data(Map.of("bundle: ", service.deleteBookFromBundle(bundleID, bookID)))
-                            .build()
-            );
+            return ResponseUtil.okResponse("deleted a book with id: " + bookID + " from bundle with id: " + bundleID,
+                    "bundle", service.deleteBookFromBundle(bundleID, bookID));
         }
-        return Utils.idNotFoundResponse(BookBundle.class);
+        return ResponseUtil.idNotFoundResponse(BookBundle.class);
     }
 
     @PatchMapping("/discount/{id}/{value}")
     public ResponseEntity<Response> changeBundleDiscount(@PathVariable long id, @PathVariable double value){
         Optional<BookBundle> result = service.findBundleById(id);
         if(result.isPresent()){
-            return ResponseEntity.ok(
-                Response.builder()
-                        .message("changed discount value of bundle with id: " + id + " to "+ value)
-                        .timestamp(LocalDateTime.now())
-                        .httpStatus(HttpStatus.OK)
-                        .statusCode(HttpStatus.OK.value())
-                        .data(Map.of("bundle: ", service.changeBundleDiscount(id, value)))
-                        .build()
-            );
+            return ResponseUtil.okResponse("changed discount value of bundle with id: " + id + " to "+ value,
+                    "bundle", service.changeBundleDiscount(id, value));
         }
-        return Utils.idNotFoundResponse(BookBundle.class);
+        return ResponseUtil.idNotFoundResponse(BookBundle.class);
     }
 }

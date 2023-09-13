@@ -21,6 +21,12 @@ public class Utils {
     public static String PASS_CHANGED = "password changed successfully";
     public static String EMAIL_NOT_FOUND = "no account with provided email found";
 
+    public static String NO_BOOKS_FOUND = "no matching books found";
+
+    public static String BOOK_RETRIEVED = "books retrieved successfully";
+
+    public static String ID_NOT_FOUND = "id not found";
+
     public static Field[] extractFields(Object object) {
         List<Field> fieldsList = new ArrayList<>();
         Class<?> currentClass = object.getClass();
@@ -33,50 +39,6 @@ public class Utils {
 
         Field[] fieldsArray = new Field[fieldsList.size()];
         return fieldsList.toArray(fieldsArray);
-    }
-
-    public static ResponseEntity<Response> idNotFoundResponse(Class objectClass){
-        return ResponseEntity.badRequest().body(
-                Response.builder()
-                        .message("id of class: " + objectClass.getName() + "not found")
-                        .httpStatus(HttpStatus.BAD_REQUEST)
-                        .statusCode(HttpStatus.BAD_REQUEST.value())
-                        .build()
-        );
-    }
-
-    public static ResponseEntity<Response> somethingWentWrongResponse(){
-        return ResponseEntity.ok(
-                Response.builder()
-                        .message("something went wrong")
-                        .timestamp(LocalDateTime.now())
-                        .httpStatus(HttpStatus.BAD_REQUEST)
-                        .statusCode(HttpStatus.BAD_REQUEST.value())
-                        .build()
-        );
-    }
-
-    public static ResponseEntity<Response> badRequestResponse(String message){
-        return ResponseEntity.ok(
-                Response.builder()
-                        .message(message)
-                        .timestamp(LocalDateTime.now())
-                        .httpStatus(HttpStatus.BAD_REQUEST)
-                        .statusCode(HttpStatus.BAD_REQUEST.value())
-                        .build()
-        );
-
-    }
-    public static ResponseEntity<Response> okResponse(String message, String dataName, Object data){
-        return ResponseEntity.ok(
-                Response.builder()
-                        .message(message)
-                        .timestamp(LocalDateTime.now())
-                        .httpStatus(HttpStatus.OK)
-                        .statusCode(HttpStatus.OK.value())
-                        .data(Map.of(dataName, data))
-                        .build()
-        );
     }
 
 }

@@ -1,6 +1,5 @@
 package com.miko.bookapp.Controller;
 
-import com.miko.bookapp.Utils;
 import com.miko.bookapp.model.Book;
 import com.miko.bookapp.model.FilterObject;
 import com.miko.bookapp.model.Response;
@@ -13,9 +12,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -23,52 +20,28 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class BookController {
-
     private final ServiceBook service;
-
     @GetMapping("/list")
     public ResponseEntity<Response> listBooks(){
-        return ResponseEntity.ok(
-                Response.builder()
-                        .message("List Of Books retrieved")
-                        .timestamp(LocalDateTime.now())
-                        .httpStatus(HttpStatus.OK)
-                        .statusCode(HttpStatus.OK.value())
-                        .data(Map.of("books: ", service.getAllBooks()))
-                        .build()
-        );
+        return ResponseUtil.okResponse("List Of Books retrieved","books",
+                service.getAllBooks());
     }
 
     @GetMapping("/list/{id}")
     public ResponseEntity<Response> getBookById(@PathVariable long id){
         Optional<Book> result = service.findBookById(id);
         if(result.isPresent()){
-            return ResponseEntity.ok(
-                    Response.builder()
-                            .message("a book with id: " + id + " retrieved")
-                            .timestamp(LocalDateTime.now())
-                            .httpStatus(HttpStatus.OK)
-                            .statusCode(HttpStatus.OK.value())
-                            .data(Map.of("books: ", service.findBookById(id)))
-                            .build()
-            );
+            return ResponseUtil.okResponse("a book with id: " + id + " retrieved", "book",service.findBookById(id));
         }
-        return Utils.idNotFoundResponse(Book.class);
+        return ResponseUtil.idNotFoundResponse(Book.class);
 
     }
 
     @PostMapping("/create")
     public ResponseEntity<Response> createBook(@RequestBody @Valid Book book){
         try{
-            return ResponseEntity.ok(
-                    Response.builder()
-                            .message("a new book added")
-                            .timestamp(LocalDateTime.now())
-                            .httpStatus(HttpStatus.CREATED)
-                            .statusCode(HttpStatus.CREATED.value())
-                            .data(Map.of("books: ", service.saveBook(book)))
-                            .build()
-            );
+            return ResponseUtil.okResponse("a new book added", "book",
+                    service.saveBook(book));
         }catch (IllegalArgumentException e) {
             log.info("bad enum value given");
             return badEnumResponse();
@@ -79,52 +52,29 @@ public class BookController {
     public ResponseEntity<Response> updateBook(@RequestBody Book book, @PathVariable long id) {
             Optional<Book> result = service.findBookById(id);
             if (result.isPresent()) {
-                return ResponseEntity.ok(
-                        Response.builder()
-                                .message("a book with id: " + id + " updated")
-                                .timestamp(LocalDateTime.now())
-                                .httpStatus(HttpStatus.OK)
-                                .statusCode(HttpStatus.OK.value())
-                                .data(Map.of("books: ", service.updateBook(id, book)))
-                                .build()
-                );
+                return ResponseUtil.okResponse("a book with id: " + id + " updated", "book",
+                        service.updateBook(id, book));
             }
-            return Utils.idNotFoundResponse(Book.class);
+            return ResponseUtil.idNotFoundResponse(Book.class);
     }
 
     @PatchMapping("/update/{id}")
     public ResponseEntity<Response> changeBook(@RequestBody Book book, @PathVariable long id){
         Optional<Book> result = service.findBookById(id);
         if(result.isPresent()){
-                return ResponseEntity.ok(
-                        Response.builder()
-                                .message("a book with id: " + id + " changed")
-                                .timestamp(LocalDateTime.now())
-                                .httpStatus(HttpStatus.OK)
-                                .statusCode(HttpStatus.OK.value())
-                                .data(Map.of("books: ", service.changeBook(id, book)))
-                                .build()
-                );
+                return ResponseUtil.okResponse("a book with id: " + id + " changed", "book", service.changeBook(id, book));
         }
-        return Utils.idNotFoundResponse(Book.class);
+        return ResponseUtil.idNotFoundResponse(Book.class);
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Response> deleteBookById(@PathVariable long id){
         Optional<Book> result = service.findBookById(id);
         if(result.isPresent()){
-            return ResponseEntity.ok(
-                    Response.builder()
-                            .message("a book with id: " + id + " deleted")
-                            .timestamp(LocalDateTime.now())
-                            .httpStatus(HttpStatus.OK)
-                            .statusCode(HttpStatus.OK.value())
-                            .data(Map.of("books: ", service.deleteBookById(id)))
-                            .build()
-            );
+            return ResponseUtil.okResponse("a book with id: " + id + " deleted", "book", service.deleteBookById(id));
         }
 
-        return Utils.idNotFoundResponse(Book.class);
+        return ResponseUtil.idNotFoundResponse(Book.class);
     }
 
     @GetMapping("/filter")
@@ -133,19 +83,12 @@ public class BookController {
         var category = filterObject.getCategory()!=null? filterObject.getCategory() : null;
         var type = filterObject.getType()!=null? filterObject.getType() : null;
         var prizeMax = filterObject.getPrize()!=null? filterObject.getPrize() : null;
-        return ResponseEntity.ok(
-                Response.builder()
-                        .message("List Of filtered Books retrieved")
-                        .timestamp(LocalDateTime.now())
-                        .httpStatus(HttpStatus.OK)
-                        .statusCode(HttpStatus.OK.value())
-                        .data(Map.of("books: ", service.getFilteredBooks(category, type, prizeMax)))
-                        .build()
-        );
+        var result = service.getFilteredBooks(category, type, prizeMax);
+        return ResponseUtil.okResponse("List Of filtered Books retrieved", "books",result);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    ResponseEntity<Response> badEnumResponse(){
+    public static ResponseEntity<Response> badEnumResponse(){
         return ResponseEntity.badRequest().body(
                 Response.builder()
                         .message("bad enum value given")
@@ -155,7 +98,5 @@ public class BookController {
                         .build()
         );
     }
-
-
 
 }

@@ -150,7 +150,7 @@ public class BundleControllerIntTest {
             mockMvc.perform(MockMvcRequestBuilders.delete("/bundles/delete/1"))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.content().string(containsString("a bundle with id: 1 deleted")))
-                    .andExpect(MockMvcResultMatchers.content().string(containsString("\"bundle: \":null")));
+                    .andExpect(MockMvcResultMatchers.content().string(containsString("\"bundle\":null")));
         } catch (Exception e) {
             throw new RuntimeException(e + ": error deleting a bundle");
         }
@@ -211,7 +211,7 @@ public class BundleControllerIntTest {
         try{
             mockMvc.perform(MockMvcRequestBuilders.get("/bundles/list/123"))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                    .andExpect(MockMvcResultMatchers.content().string(containsString("id not found")));
+                    .andExpect(MockMvcResultMatchers.content().string(containsString("id of class: BookBundle not found")));
         } catch (Exception e) {
             throw new RuntimeException(e + ": error getting a bundle");
         }
