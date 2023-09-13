@@ -2,9 +2,9 @@ package com.miko.bookapp.Controller;
 
 
 import com.miko.bookapp.Utils;
-import com.miko.bookapp.model.PasswordForm;
-import com.miko.bookapp.model.Response;
-import com.miko.bookapp.model.ServiceResponse;
+import com.miko.bookapp.DTO.PasswordForm;
+import com.miko.bookapp.DTO.Response;
+import com.miko.bookapp.DTO.ServiceResponse;
 import com.miko.bookapp.model.User;
 import com.miko.bookapp.service.ServiceUser;
 import lombok.AllArgsConstructor;
@@ -35,6 +35,42 @@ public class UserController {
         return result.map(user -> ResponseUtil.okResponse("user with id: " + id + " retrieved", "user", user)).orElseGet(() -> ResponseUtil.idNotFoundResponse(User.class));
     }
 
+    @GetMapping("/listByEmail")
+    public ResponseEntity<Response> listUserByEmail(@RequestBody String email){
+        Optional<User> result = service.findUserByEmail(email);
+        return result.map(user -> ResponseUtil.okResponse("user with email: " + email + " retrieved", "user", user)).orElseGet(() -> ResponseUtil.emailNotFoundResponse(email));
+    }
+
+    @PostMapping("/updateUser/{id}")
+    public ResponseEntity<Response> updateUserById(@PathVariable int id, @RequestBody User updatedUser){
+        Optional<User> result = service.updateUserById(id, updatedUser);
+        return result.map(user -> ResponseUtil.okResponse("user with id: " + id + " updated", "user", user)).orElseGet(() -> ResponseUtil.idNotFoundResponse(User.class));
+    }
+
+    @PostMapping("/updateUserByEmail")
+    public ResponseEntity<Response> updateUserByEmail(@RequestBody User updatedUser){
+        ServiceResponse<User> result = service.updateUserByEmail(updatedUser);
+
+        if(result.getMessage().equals(Utils.EMAIL_NOT_GIVEN)) return ResponseUtil.badRequestResponse(Utils.EMAIL_NOT_GIVEN);
+        if (result.getMessage().equals(Utils.EMAIL_NOT_FOUND)) return ResponseUtil.badRequestResponse(Utils.EMAIL_NOT_FOUND);
+
+        if (result.getMessage().equals(Utils.ACCOUNT_UPDATED))
+            return ResponseUtil.okResponse(Utils.ACCOUNT_UPDATED, "user", result.getData());
+        return ResponseUtil.somethingWentWrongResponse(result.getMessage());
+    }
+
+    @PatchMapping("/changeUser")
+    public ResponseEntity<Response> changeUserByEmail(@RequestBody User updatedUser){
+        ServiceResponse<User> result = service.changeUserByEmail(updatedUser);
+
+        if(result.getMessage().equals(Utils.EMAIL_NOT_GIVEN)) return ResponseUtil.badRequestResponse(Utils.EMAIL_NOT_GIVEN);
+        if (result.getMessage().equals(Utils.EMAIL_NOT_FOUND)) return ResponseUtil.badRequestResponse(Utils.EMAIL_NOT_FOUND);
+
+        if (result.getMessage().equals(Utils.ACCOUNT_UPDATED))
+            return ResponseUtil.okResponse(Utils.ACCOUNT_UPDATED, "user", result.getData());
+        return ResponseUtil.somethingWentWrongResponse(result.getMessage());
+    }
+
     @PostMapping("/create")
     public ResponseEntity<Response> createNewUser(@RequestBody User user){
         ServiceResponse<User> response = service.saveUser(user);
@@ -50,7 +86,32 @@ public class UserController {
         if(response.getMessage().equals(Utils.ACCOUNT_CREATED)){
             return ResponseUtil.okResponse(Utils.ACCOUNT_CREATED, "user", response.getData());
         }
-        return ResponseUtil.somethingWentWrongResponse();
+        return ResponseUtil.somethingWentWrongResponse(response.getMessage());
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Response> deleteUserById(@PathVariable long id){
+        ServiceResponse<User> response = service.deleteUserById(id);
+
+        if(response.getMessage().equals(Utils.ID_NOT_FOUND)){
+            return ResponseUtil.idNotFoundResponse(User.class);
+        }
+        if(response.getMessage().equals(Utils.ACCOUNT_UPDATED)){
+            return ResponseUtil.okResponse("user with id: " + id + " deleted", "user", response.getData());
+        }
+        return ResponseUtil.somethingWentWrongResponse(response.getMessage());
+    }
+
+    @DeleteMapping("/deleteByEmail")
+    public ResponseEntity<Response> deleteUserByEmail(@RequestBody String email){
+        ServiceResponse<User> response = service.deleteUserByEmail(email);
+        var serviceResponse = response.getMessage();
+
+        if(serviceResponse.equals(Utils.EMAIL_NOT_GIVEN)) return ResponseUtil.badRequestResponse(Utils.EMAIL_NOT_GIVEN);
+        if(serviceResponse.equals(Utils.EMAIL_NOT_FOUND)) return ResponseUtil.badRequestResponse(Utils.EMAIL_NOT_FOUND);
+        if(serviceResponse.equals(Utils.ACCOUNT_UPDATED)) return ResponseUtil.okResponse("successfully deleted user with email: " + email,
+                "user", response.getData());
+        return ResponseUtil.somethingWentWrongResponse(response.getMessage());
     }
 
     @PatchMapping("/changePassword")
@@ -66,7 +127,9 @@ public class UserController {
         if(response.getMessage().equals(Utils.PASS_CHANGED)){
             return ResponseUtil.okResponse(Utils.PASS_CHANGED, "user", response.getData());
         }
-        return ResponseUtil.somethingWentWrongResponse();
+        return ResponseUtil.somethingWentWrongResponse(response.getMessage());
     }
+
+
 
 }

@@ -1,15 +1,9 @@
 package com.miko.bookapp;
 
-import com.miko.bookapp.model.Response;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
 import java.lang.reflect.Field;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public class Utils {
 
@@ -20,12 +14,15 @@ public class Utils {
     public static String BAD_PASSWORD = "incorrect password given";
     public static String PASS_CHANGED = "password changed successfully";
     public static String EMAIL_NOT_FOUND = "no account with provided email found";
-
+    public static String EMAIL_NOT_GIVEN = "no email has been provided in the request";
+    public static String NULL_OBJECT = "a null object provided";
     public static String NO_BOOKS_FOUND = "no matching books found";
 
     public static String BOOK_RETRIEVED = "books retrieved successfully";
 
     public static String ID_NOT_FOUND = "id not found";
+
+    public static String ACCOUNT_UPDATED = "account has been updated";
 
     public static Field[] extractFields(Object object) {
         List<Field> fieldsList = new ArrayList<>();

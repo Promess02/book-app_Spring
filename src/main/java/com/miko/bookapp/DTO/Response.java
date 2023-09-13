@@ -1,4 +1,4 @@
-package com.miko.bookapp.model;
+package com.miko.bookapp.DTO;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;

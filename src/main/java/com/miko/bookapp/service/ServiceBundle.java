@@ -2,7 +2,7 @@ package com.miko.bookapp.service;
 
 import com.miko.bookapp.model.Book;
 import com.miko.bookapp.model.BookBundle;
-import com.miko.bookapp.model.ServiceResponse;
+import com.miko.bookapp.DTO.ServiceResponse;
 
 import java.util.List;
 import java.util.Optional;

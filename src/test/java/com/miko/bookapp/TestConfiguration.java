@@ -1,24 +1,20 @@
 package com.miko.bookapp;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.miko.bookapp.model.Book;
 import com.miko.bookapp.model.BookBundle;
 import com.miko.bookapp.repo.BookRepo;
 import com.miko.bookapp.repo.BundleRepo;
 import com.miko.bookapp.service.ServiceBook;
-import com.miko.bookapp.service.ServiceBookImplementation;
+import com.miko.bookapp.service.Implementation.ServiceBookImplementation;
 import com.miko.bookapp.service.ServiceBundle;
-import com.miko.bookapp.service.ServiceBundleImplementation;
+import com.miko.bookapp.service.Implementation.ServiceBundleImplementation;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.MediaType;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Configuration

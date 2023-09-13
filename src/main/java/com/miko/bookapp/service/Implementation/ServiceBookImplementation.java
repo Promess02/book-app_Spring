@@ -1,10 +1,11 @@
-package com.miko.bookapp.service;
+package com.miko.bookapp.service.Implementation;
 
 import com.miko.bookapp.Utils;
 import com.miko.bookapp.enums.BookCategory;
 import com.miko.bookapp.enums.BookType;
 import com.miko.bookapp.model.Book;
 import com.miko.bookapp.repo.BookRepo;
+import com.miko.bookapp.service.ServiceBook;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ServiceBookImplementation implements ServiceBook{
+public class ServiceBookImplementation implements ServiceBook {
 
     private final BookRepo bookRepo;
     @Override

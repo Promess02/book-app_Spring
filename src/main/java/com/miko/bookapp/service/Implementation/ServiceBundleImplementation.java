@@ -1,11 +1,12 @@
-package com.miko.bookapp.service;
+package com.miko.bookapp.service.Implementation;
 
 import com.miko.bookapp.Utils;
 import com.miko.bookapp.model.Book;
 import com.miko.bookapp.model.BookBundle;
-import com.miko.bookapp.model.ServiceResponse;
+import com.miko.bookapp.DTO.ServiceResponse;
 import com.miko.bookapp.repo.BookRepo;
 import com.miko.bookapp.repo.BundleRepo;
+import com.miko.bookapp.service.ServiceBundle;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ServiceBundleImplementation implements ServiceBundle{
+public class ServiceBundleImplementation implements ServiceBundle {
 
     private final BundleRepo bundleRepo;
     private final BookRepo bookRepo;

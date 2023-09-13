@@ -2,7 +2,7 @@ package com.miko.bookapp.Controller;
 
 import com.miko.bookapp.Utils;
 import com.miko.bookapp.model.BookBundle;
-import com.miko.bookapp.model.Response;
+import com.miko.bookapp.DTO.Response;
 import com.miko.bookapp.service.ServiceBundle;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +41,7 @@ public class BundleController {
         if (result.getMessage().equals(Utils.ID_NOT_FOUND)) return ResponseUtil.idNotFoundResponse(BookBundle.class);
         if(result.getMessage().equals(Utils.NO_BOOKS_FOUND)) return ResponseUtil.badRequestResponse(Utils.NO_BOOKS_FOUND);
         if(result.getData().isPresent()) return ResponseUtil.okResponse("List Of Books For Bundle with id: " + id + " retrieved", "books", result.getData().get());
-        return ResponseUtil.somethingWentWrongResponse();
+        return ResponseUtil.somethingWentWrongResponse(result.getMessage());
     }
 
     @PostMapping("/create")

@@ -1,8 +1,8 @@
 package com.miko.bookapp.Controller;
 
 import com.miko.bookapp.model.Book;
-import com.miko.bookapp.model.FilterObject;
-import com.miko.bookapp.model.Response;
+import com.miko.bookapp.DTO.FilterObject;
+import com.miko.bookapp.DTO.Response;
 import com.miko.bookapp.service.ServiceBook;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,6 +1,7 @@
-package com.miko.bookapp.repo;
+package com.miko.bookapp.repo.repoSQL;
 
 import com.miko.bookapp.model.User;
+import com.miko.bookapp.repo.UserRepo;
 import org.hibernate.sql.ast.tree.expression.JdbcParameter;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

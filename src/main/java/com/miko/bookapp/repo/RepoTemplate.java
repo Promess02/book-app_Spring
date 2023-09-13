@@ -5,18 +5,18 @@ import com.miko.bookapp.model.Book;
 import java.util.List;
 import java.util.Optional;
 
-public interface RepoTemplate<T, ID> {
+public interface RepoTemplate<T> {
     List<T> findAll();
 
     T save(T entity);
 
-    Optional<T> findById(ID id);
+    Optional<T> findById(long id);
 
-    boolean existsById(ID id);
+    boolean existsById(long id);
 
     long count();
 
-    void deleteById(ID id);
+    void deleteById(long id);
 
     void delete(T entity);
 

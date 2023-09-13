@@ -1,13 +1,13 @@
-package com.miko.bookapp.service;
+package com.miko.bookapp.service.Implementation;
 
 
 import com.miko.bookapp.Utils;
-import com.miko.bookapp.model.BookBundle;
 import com.miko.bookapp.model.Order;
-import com.miko.bookapp.model.ServiceResponse;
+import com.miko.bookapp.DTO.ServiceResponse;
 import com.miko.bookapp.model.User;
 import com.miko.bookapp.repo.OrderRepo;
 import com.miko.bookapp.repo.UserRepo;
+import com.miko.bookapp.service.ServiceUser;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import java.util.Optional;
 @Service
 @Slf4j
 @AllArgsConstructor
-public class ServiceUserImplementation implements ServiceUser{
+public class ServiceUserImplementation implements ServiceUser {
 
     private final UserRepo userRepo;
     private final OrderRepo orderRepo;
@@ -76,14 +76,16 @@ public class ServiceUserImplementation implements ServiceUser{
     }
 
     @Override
-    public Optional<User> updateUserByEmail(String email, User user) {
+    public ServiceResponse<User> updateUserByEmail(User user) {
+        if(user.getEmail() == null) return new ServiceResponse<>(Optional.empty(),Utils.EMAIL_NOT_GIVEN);
+        var email = user.getEmail();
         if(userRepo.existsByEmail(email)){
             userRepo.save(user);
             log.info("updated user with email: " + email);
-            return userRepo.findByEmail(email);
+            return new ServiceResponse<>(userRepo.findByEmail(email),Utils.ACCOUNT_UPDATED);
         }
         log.info("user with email: " + email + " not found");
-        return Optional.empty();
+        return new ServiceResponse<>(Optional.empty(), Utils.EMAIL_NOT_FOUND);
     }
 
     @Override
@@ -114,6 +116,36 @@ public class ServiceUserImplementation implements ServiceUser{
     }
 
     @Override
+    public ServiceResponse<User> changeUserByEmail(User user){
+        if(user.getEmail()==null) return new ServiceResponse<>(Optional.empty(), Utils.EMAIL_NOT_GIVEN);
+        var email = user.getEmail();
+
+        if(userRepo.existsByEmail(email)){
+            var userFields = Utils.extractFields(user);
+
+            Optional<User> userOptional = userRepo.findByEmail(email);
+            if(userOptional.isEmpty()) return new ServiceResponse<>(Optional.empty(), Utils.EMAIL_NOT_FOUND);
+            User result = userOptional.get();
+
+            for(Field field: userFields){
+                field.setAccessible(true);
+                try {
+                    var newValue = field.get(user);
+                    if(newValue!=null && !field.getName().equals("id"))
+                        field.set(result,newValue);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            userRepo.save(result);
+            log.info("user changed with email: " + email);
+            return new ServiceResponse<>(Optional.of(result), Utils.ACCOUNT_UPDATED);
+        }
+        log.info("email provided for user was not found");
+        return new ServiceResponse<>(Optional.empty(), Utils.EMAIL_NOT_FOUND);
+    }
+
+    @Override
     public ServiceResponse<User> changePassword(String email, String oldPassword, String newPassword) {
 
         if(userRepo.existsByEmail(email)){
@@ -137,10 +169,23 @@ public class ServiceUserImplementation implements ServiceUser{
         if(user.isPresent()){
             userRepo.deleteById(id);
             log.info("successfully deleted user with id: " + id);
-            return new ServiceResponse<>(Optional.empty(),"success");
+            return new ServiceResponse<>(Optional.empty(),Utils.ACCOUNT_UPDATED);
         }
-        return new ServiceResponse<>(Optional.empty(),"id not found");
+        return new ServiceResponse<>(Optional.empty(),Utils.ID_NOT_FOUND);
     }
+
+    @Override
+    public ServiceResponse<User> deleteUserByEmail(String email) {
+        if(email==null) return new ServiceResponse<>(Optional.empty(),Utils.EMAIL_NOT_GIVEN);
+        if(userRepo.existsByEmail(email)){
+            Optional<User> user = userRepo.findByEmail(email);
+            if(user.isEmpty()) return new ServiceResponse<>(Optional.empty(), Utils.EMAIL_NOT_FOUND);
+            userRepo.delete(user.get());
+            return new ServiceResponse<>(Optional.empty(),Utils.ACCOUNT_UPDATED);
+        }
+        return new ServiceResponse<>(Optional.empty(),Utils.EMAIL_NOT_FOUND);
+    }
+
 
     @Override
     public Optional<List<Order>> getListOfOrdersOfUser(User user) {
