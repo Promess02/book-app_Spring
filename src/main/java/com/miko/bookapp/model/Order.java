@@ -22,8 +22,14 @@ public class Order {
 
     private Double totalAmount;
 
-    Order(){
+    public Order(){
         orderItems = new ArrayList<>();
+        orderDate = LocalDateTime.now();
+    }
+    public Order(User user, List<OrderItem> orderItems){
+        this.user = user;
+        this.orderItems = orderItems;
+        calculateOrderTotalAmount();
     }
 
     public Order(Long id, User user, List<OrderItem> orderItems, LocalDateTime orderDate, Double totalAmount) {
@@ -56,6 +62,7 @@ public class Order {
 
     public void setOrderItems(List<OrderItem> orderItems) {
         this.orderItems = orderItems;
+        calculateOrderTotalAmount();
     }
 
     public LocalDateTime getOrderDate() {

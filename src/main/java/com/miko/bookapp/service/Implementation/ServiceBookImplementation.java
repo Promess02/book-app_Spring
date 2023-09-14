@@ -4,7 +4,9 @@ import com.miko.bookapp.Utils;
 import com.miko.bookapp.enums.BookCategory;
 import com.miko.bookapp.enums.BookType;
 import com.miko.bookapp.model.Book;
+import com.miko.bookapp.model.Product;
 import com.miko.bookapp.repo.BookRepo;
+import com.miko.bookapp.repo.ProductRepo;
 import com.miko.bookapp.service.ServiceBook;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +21,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class ServiceBookImplementation implements ServiceBook {
-
+//TODO - FIX TESTS AND IMPLEMENT THAT PRODUCTS SAVE TO DB
     private final BookRepo bookRepo;
+    private final ProductRepo productRepo;
     @Override
     public List<Book> getAllBooks() {
         log.info("Retrieving all the books");
@@ -30,6 +33,11 @@ public class ServiceBookImplementation implements ServiceBook {
     @Override
     public Book saveBook(Book book) {
         log.info("Saving book");
+
+        Product product = productRepo.save(new Product(0, book.getDescription(),book.getPrice()));
+        book.setId(product.getId());
+
+
         return bookRepo.save(book);
     }
 
@@ -46,6 +54,7 @@ public class ServiceBookImplementation implements ServiceBook {
             Optional<Book> result = Optional.of(book);
             result.get().setId(id);
              bookRepo.save(result.get());
+             productRepo.save(result.get());
              return result;
         }else return Optional.empty();
     }
@@ -65,6 +74,7 @@ public class ServiceBookImplementation implements ServiceBook {
                     throw new RuntimeException(e);
                 }
             }
+            productRepo.save(result);
             bookRepo.save(result);
             return Optional.of(result);
         }else return Optional.empty();
@@ -72,6 +82,7 @@ public class ServiceBookImplementation implements ServiceBook {
     @Override
     public Optional<Book> deleteBookById(long id) {
         if (bookRepo.existsById(id)){
+            productRepo.deleteById(id);
             bookRepo.deleteById(id);
         }
         return Optional.empty();

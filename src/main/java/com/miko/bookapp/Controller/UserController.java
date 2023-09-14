@@ -114,6 +114,15 @@ public class UserController {
         return ResponseUtil.somethingWentWrongResponse(response.getMessage());
     }
 
+    @PatchMapping("/addFunds/{id}")
+    public ResponseEntity<Response> addFundsToAccount(@PathVariable long id, @RequestBody Double funds){
+        ServiceResponse<User> response = service.addFunds(id,funds);
+        var responseMessage = response.getMessage();
+        if(responseMessage.equals(Utils.ID_NOT_FOUND)) return ResponseUtil.badRequestResponse(Utils.ID_NOT_FOUND);
+        else return ResponseUtil.okResponse("added funds: " + funds + " to account with id: " + id,
+                "user", response.getData());
+    }
+
     @PatchMapping("/changePassword")
     public ResponseEntity<Response> changePassword(@RequestBody PasswordForm passwordForm){
         ServiceResponse<User> response = service.changePassword(passwordForm.getEmail(), passwordForm.getOldPassword(), passwordForm.getNewPassword());

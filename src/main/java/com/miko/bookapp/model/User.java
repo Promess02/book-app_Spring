@@ -24,6 +24,10 @@ public class User {
 
     private Double walletWorth;
 
+    public User() {
+        walletWorth = 0d;
+    }
+
     public long getId() {
         return id;
     }

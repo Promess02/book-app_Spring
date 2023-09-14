@@ -164,6 +164,17 @@ public class ServiceUserImplementation implements ServiceUser {
     }
 
     @Override
+    public ServiceResponse<User> addFunds(long id, Double funds) {
+        if(userRepo.existsById(id)){
+            Optional<User> user = userRepo.findById(id);
+            user.ifPresent(value -> value.increaseWalletWorth(funds));
+            user.ifPresent(userRepo::save);
+            return new ServiceResponse<>(Optional.of(user.get()),Utils.ACCOUNT_UPDATED);
+        }
+        return new ServiceResponse<>(Optional.empty(),Utils.ID_NOT_FOUND);
+    }
+
+    @Override
     public ServiceResponse<User> deleteUserById(long id) {
         var user = userRepo.findById(id);
         if(user.isPresent()){

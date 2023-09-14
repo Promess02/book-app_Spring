@@ -23,6 +23,10 @@ public class Utils {
     public static String ID_NOT_FOUND = "id not found";
 
     public static String ACCOUNT_UPDATED = "account has been updated";
+    public static String NO_ORDER_ITEMS = "no order items provided in the request";
+    public static String ORDER_SAVED = "order has been saved successfully";
+    public static String INSUFFICIENT_FUNDS = "account funds are insufficient to execute transaction";
+
 
     public static Field[] extractFields(Object object) {
         List<Field> fieldsList = new ArrayList<>();

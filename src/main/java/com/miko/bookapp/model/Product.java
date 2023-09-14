@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 @Table(name = "product")
 public class Product {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long id;
 
     private String description;
@@ -46,6 +46,12 @@ public class Product {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    //when saved to the db it first saves a product to a product table and then a specific product to table that inherits from product
+    // so the specificProduct_id = product_id + 1
+    public long getSpecificProductId(){
+        return id+1;
     }
 
 }

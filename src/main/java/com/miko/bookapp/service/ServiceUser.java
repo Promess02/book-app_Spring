@@ -26,6 +26,7 @@ public interface ServiceUser {
     ServiceResponse<User> changeUserByEmail(User user);
 
     ServiceResponse<User> changePassword(String email, String oldPassword, String newPassword);
+    ServiceResponse<User> addFunds(long id, Double funds);
 
     ServiceResponse<User> deleteUserById(long id);
     ServiceResponse<User> deleteUserByEmail(String email);

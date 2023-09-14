@@ -19,6 +19,12 @@ public class OrderItem {
 
     private Double totalPrice;
 
+    public OrderItem(Product product, int quantity, Double totalPrice) {
+        this.product = product;
+        this.quantity = quantity;
+        this.totalPrice = totalPrice;
+    }
+
     public Long getId() {
         return id;
     }
@@ -36,6 +42,7 @@ public class OrderItem {
     }
 
     public Product getProduct() {
+
         return product;
     }
 
@@ -54,6 +61,7 @@ public class OrderItem {
     }
 
     public double getTotalPrice() {
+        calculateTotalPrice();
         return totalPrice;
     }
 
