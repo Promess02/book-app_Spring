@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface ServiceOrder {
     List<Order> getAllOrders();
-    ServiceResponse<Order> saveOrder(OrderReadDTO order);
+    ServiceResponse<OrderReadDTO> saveOrder(OrderReadDTO order);
     Optional<Order> findOrderById(long id);
     ServiceResponse<Order> updateOrder(long id, OrderReadDTO order);
     ServiceResponse<Order> changeOrder(long id, OrderReadDTO order);

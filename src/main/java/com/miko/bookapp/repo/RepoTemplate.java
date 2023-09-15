@@ -1,6 +1,7 @@
 package com.miko.bookapp.repo;
 
 import com.miko.bookapp.model.Book;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +10,7 @@ public interface RepoTemplate<T> {
     List<T> findAll();
 
     T save(T entity);
+
 
     Optional<T> findById(long id);
 
@@ -21,4 +23,6 @@ public interface RepoTemplate<T> {
     void delete(T entity);
 
     void deleteAll();
+
+    long getNextGeneratedId();
 }

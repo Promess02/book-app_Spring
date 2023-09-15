@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -37,7 +38,7 @@ public class ServiceOrderImplementation implements ServiceOrder {
     }
 
     @Override
-    public ServiceResponse<Order> saveOrder(OrderReadDTO orderRead) {
+    public ServiceResponse<OrderReadDTO> saveOrder(OrderReadDTO orderRead) {
 
         if(orderRead.getUserEmail()==null) return new ServiceResponse<>(Optional.empty(),Utils.EMAIL_NOT_GIVEN);
         var email = orderRead.getUserEmail();
@@ -49,13 +50,22 @@ public class ServiceOrderImplementation implements ServiceOrder {
 
         List<OrderItem> orderItems = new LinkedList<>();
 
+        long orderId = orderRepo.getNextGeneratedId();
+        Order order = new Order();
+        order.setId(orderId);
+        order.setUser(user.get());
+        order.setOrderDate(LocalDateTime.now());
+
         for(OrderItemDTO orderItemDTO: orderItemsDTO){
             long productId = orderItemDTO.getProduct_id();
-            if(productRepo.existsById(productId)) {
+            if(productRepo.findById(productId).isPresent()) {
                 Product product = productRepo.findById(productId).get();
-                OrderItem orderItem = orderItemRepo.save(new OrderItem(product,orderItemDTO.getQuantity(),product.getPrice()*orderItemDTO.getQuantity()));
+                OrderItem orderItem = new OrderItem(null, product,orderItemDTO.getQuantity(),product.getPrice()*orderItemDTO.getQuantity());
+                var nextOrderItemId = orderItemRepo.getNextGeneratedId();
+                orderItem.setId(nextOrderItemId);
                 orderItems.add(orderItem);
-            }
+     //           orderItemRepo.save(orderItem);
+            }else return new ServiceResponse<>(Optional.empty(),"no product found");
         }
 
         double totalAmount = 0;
@@ -66,9 +76,18 @@ public class ServiceOrderImplementation implements ServiceOrder {
 
         user.get().decreaseWalletWorth(totalAmount);
         userRepo.save(user.get());
-        Order order = orderRepo.save(new Order(user.get(),orderItems));
+        order.setOrderItems(orderItems);
+        order.setTotalAmount(totalAmount);
+        orderRepo.save(order);
 
-        return new ServiceResponse<>(Optional.of(order), Utils.ORDER_SAVED);
+        for(OrderItem orderItem: orderItems){
+            orderItem.setOrder(order);
+            orderItemRepo.save(orderItem);
+        }
+        orderRead.setTotalAmount(totalAmount);
+        orderRead.getOrderItems().forEach(orderItemDTO -> orderItemDTO.setCustom_order_id(orderId));
+
+        return new ServiceResponse<>(Optional.of(orderRead), Utils.ORDER_SAVED);
     }
 
     @Override
@@ -116,4 +135,5 @@ public class ServiceOrderImplementation implements ServiceOrder {
     public void deleteAllOrders() {
         orderRepo.deleteAll();
     }
+
 }

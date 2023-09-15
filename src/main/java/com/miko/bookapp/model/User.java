@@ -1,6 +1,7 @@
 package com.miko.bookapp.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -10,7 +11,8 @@ import javax.validation.constraints.NotBlank;
 @Table(name = "user")
 public class User {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @Column(unique = true)
     private String email;
@@ -18,7 +20,7 @@ public class User {
     private String password;
     private boolean premiumStatus;
 
-    @JsonBackReference
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Order> orderList;
 
@@ -32,7 +34,7 @@ public class User {
         return id;
     }
 
-    void setId(long id) {
+    public void setId(long id) {
         this.id = id;
     }
 

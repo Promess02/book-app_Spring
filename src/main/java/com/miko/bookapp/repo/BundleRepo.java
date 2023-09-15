@@ -6,4 +6,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BundleRepo extends RepoTemplate<BookBundle>{
+    BookBundle saveEntity(BookBundle entity);
 }

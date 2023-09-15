@@ -33,12 +33,12 @@ public class ServiceBookImplementation implements ServiceBook {
     @Override
     public Book saveBook(Book book) {
         log.info("Saving book");
+        long id = productRepo.getNextGeneratedId();
 
-        Product product = productRepo.save(new Product(0, book.getDescription(),book.getPrice()));
-        book.setId(product.getId());
+       productRepo.saveEntity(new Product(id, book.getDescription(),book.getPrice()));
+        book.setId(id);
 
-
-        return bookRepo.save(book);
+        return bookRepo.saveEntity(book);
     }
 
     @Override
@@ -53,8 +53,8 @@ public class ServiceBookImplementation implements ServiceBook {
         if (bookRepo.existsById(id)){
             Optional<Book> result = Optional.of(book);
             result.get().setId(id);
+            productRepo.save(new Product(id,book.getDescription(),book.getPrice()));
              bookRepo.save(result.get());
-             productRepo.save(result.get());
              return result;
         }else return Optional.empty();
     }

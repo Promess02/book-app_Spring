@@ -15,7 +15,9 @@ public class OrderReadDTO {
     @NotBlank
     private List<OrderItemDTO> orderItems;
 
-    OrderReadDTO(){
+    private Double totalAmount;
+
+    public OrderReadDTO(){
         orderItems = new ArrayList<>();
     }
 

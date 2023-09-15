@@ -1,5 +1,7 @@
 package com.miko.bookapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -9,12 +11,12 @@ import java.util.List;
 @Table(name = "custom_order")
 public class Order {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
     private User user;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "custom_order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
 
@@ -26,7 +28,8 @@ public class Order {
         orderItems = new ArrayList<>();
         orderDate = LocalDateTime.now();
     }
-    public Order(User user, List<OrderItem> orderItems){
+    public Order(Long id, User user, List<OrderItem> orderItems){
+        this.id = id;
         this.user = user;
         this.orderItems = orderItems;
         calculateOrderTotalAmount();

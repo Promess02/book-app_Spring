@@ -1,15 +1,19 @@
 package com.miko.bookapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "order_item")
 public class OrderItem {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
+    @JsonIgnore
     private Order custom_order;
 
     @ManyToOne
@@ -19,7 +23,10 @@ public class OrderItem {
 
     private Double totalPrice;
 
-    public OrderItem(Product product, int quantity, Double totalPrice) {
+    public OrderItem(){}
+
+    public OrderItem(Order custom_order, Product product, int quantity, Double totalPrice) {
+        this.custom_order = custom_order;
         this.product = product;
         this.quantity = quantity;
         this.totalPrice = totalPrice;
@@ -29,7 +36,7 @@ public class OrderItem {
         return id;
     }
 
-    void setId(Long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

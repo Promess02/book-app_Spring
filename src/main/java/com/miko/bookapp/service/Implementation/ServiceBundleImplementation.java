@@ -4,8 +4,10 @@ import com.miko.bookapp.Utils;
 import com.miko.bookapp.model.Book;
 import com.miko.bookapp.model.BookBundle;
 import com.miko.bookapp.DTO.ServiceResponse;
+import com.miko.bookapp.model.Product;
 import com.miko.bookapp.repo.BookRepo;
 import com.miko.bookapp.repo.BundleRepo;
+import com.miko.bookapp.repo.ProductRepo;
 import com.miko.bookapp.service.ServiceBundle;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +25,7 @@ public class ServiceBundleImplementation implements ServiceBundle {
 
     private final BundleRepo bundleRepo;
     private final BookRepo bookRepo;
+    private final ProductRepo productRepo;
     @Override
     public Optional<BookBundle> findBundleById(long id) {
         if(bundleRepo.existsById(id)) {
@@ -34,13 +37,17 @@ public class ServiceBundleImplementation implements ServiceBundle {
     @Override
     public List<BookBundle> getAllBundles() {
         log.info("retrieving all bundles");
+
        return bundleRepo.findAll();
     }
 
     @Override
     public BookBundle saveBundle(BookBundle bundle) {
+        var id = productRepo.getNextGeneratedId();
+        productRepo.saveEntity(new Product(id, bundle.getDescription(),bundle.getPrice()));
+        bundle.setId(id);
         log.info("bundle saved");
-        return bundleRepo.save(bundle);
+        return bundleRepo.saveEntity(bundle);
     }
 
     public ServiceResponse<List<Book>> getListOfBooksInBundle(long bundleID){
@@ -62,6 +69,7 @@ public class ServiceBundleImplementation implements ServiceBundle {
     public Optional<BookBundle> updateBundle(long id, BookBundle bundle) {
         if(bundleRepo.existsById(id)) {
             log.info("updated bundle with id: "+ id);
+            productRepo.save(new Product(id, bundle.getDescription(),bundle.getPrice()));
             bundleRepo.save(bundle);
             return bundleRepo.findById(id);
         }
@@ -87,7 +95,9 @@ public class ServiceBundleImplementation implements ServiceBundle {
                     throw new RuntimeException(e);
                 }
             }
+            productRepo.save(new Product(id,result.getDescription(),result.getPrice()));
             bundleRepo.save(result);
+
             log.info("bundle changed with id: " + id);
             return Optional.of(result);
         }
@@ -98,6 +108,7 @@ public class ServiceBundleImplementation implements ServiceBundle {
     @Override
     public Optional<BookBundle> deleteBundleById(long id) {
         if(bundleRepo.existsById(id)) {
+            productRepo.deleteById(id);
             bundleRepo.deleteById(id);
             log.info("bundle deleted with id: " + id);
             return bundleRepo.findById(id);
