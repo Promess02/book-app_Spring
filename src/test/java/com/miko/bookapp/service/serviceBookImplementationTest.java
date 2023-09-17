@@ -4,6 +4,7 @@ import com.miko.bookapp.enums.BookCategory;
 import com.miko.bookapp.enums.BookType;
 import com.miko.bookapp.model.Book;
 import com.miko.bookapp.repo.BookRepo;
+import com.miko.bookapp.repo.ProductRepo;
 import com.miko.bookapp.service.Implementation.ServiceBookImplementation;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
@@ -19,28 +20,35 @@ import static org.mockito.Mockito.when;
 class serviceBookImplementationTest {
     private static BookRepo bookRepo;
     private static ServiceBook bookService;
+    private static ProductRepo productRepo;
 
     @Mock
     private BookRepo mockBookRepo;
+
+    @Mock
+    private ProductRepo mockProductRepo;
     private ServiceBook mockBookService;
     private AutoCloseable autoCloseable;
 
     @BeforeAll
     static void setUp(){
         bookRepo = new MemoryBookRepo();
-        bookService = new ServiceBookImplementation(bookRepo);
+        productRepo = new MemoryProductRepo();
+        bookService = new ServiceBookImplementation(bookRepo, productRepo);
+
     }
 
     @BeforeEach
     void setUpMock(){
         autoCloseable = MockitoAnnotations.openMocks(this);
-        mockBookService = new ServiceBookImplementation(mockBookRepo);
+        mockBookService = new ServiceBookImplementation(mockBookRepo, mockProductRepo);
     }
 
 
     @AfterEach
     void tearDown() throws Exception {
         bookRepo.deleteAll();
+        productRepo.deleteAll();
         autoCloseable.close();
     }
 
@@ -51,26 +59,30 @@ class serviceBookImplementationTest {
         bookService.saveBook(dummyBook(1,"desc"));
 
         //checks if book is saved to repo
+        assertThat(productRepo.existsById(1)).isEqualTo(true);
         assertThat(bookRepo.existsById(1)).isEqualTo(true);
         //checks if function can find a book that is saved to repo
         assertThat(bookService.findBookById(1).isPresent()).isEqualTo(true);
+        assertThat(bookService.findBookById(1).get().getDescription()).isEqualTo("desc");
     }
 
     @Test
     @DisplayName("checks if returns all books")
     void findAllBooks() {
 
-        int initial = bookRepo.findAll().size();
+        int initial = bookService.getAllBooks().size();
 
-        bookRepo.save(dummyBook(initial+2, "desc1"));
-        bookRepo.save(dummyBook(initial+3, "desc2"));
-        bookRepo.save(dummyBook(initial+4, "desc3"));
-        bookRepo.save(dummyBook(initial+5, "desc4"));
+        bookService.saveBook(dummyBook(initial+2, "desc1"));
+        bookService.saveBook(dummyBook(initial+3, "desc2"));
+        bookService.saveBook(dummyBook(initial+4, "desc3"));
+        bookService.saveBook(dummyBook(initial+5, "desc4"));
 
         //checks if function finds any books
+
         assertThat(bookService.getAllBooks().isEmpty()).isEqualTo(false);
         //checks if function finds all the books saved in repository
         assertThat(bookService.getAllBooks().size()).isEqualTo(4 + initial);
+        assertThat(productRepo.findAll().size()).isEqualTo(4+initial);
     }
 
     @Test
@@ -89,13 +101,19 @@ class serviceBookImplementationTest {
         assertThat(mockBookService.updateBook(1, dummyBook(1,"old")).isPresent()).isEqualTo(false);
     }
 
+ //   @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
     @DisplayName("checks if updates book correctly")
     void updateBook() {
 
-        bookRepo.save(dummyBook(1,"old"));
+        bookService.saveBook(dummyBook(1, "old"));
+        assertThat(productRepo.existsById(1)).isEqualTo(true);
+        assertThat(bookRepo.existsById(1)).isEqualTo(true);
+  //      assertThat(bookRepo.findById(1)).isEqualTo(dummyBook(1,"old"));
         bookService.updateBook(1,dummyBook(1,"new"));
-        if(bookRepo.findById(1).isPresent()) assertThat(bookRepo.findById(1).get().getDescription()).isEqualTo("new");
+
+        assertThat(productRepo.findById(1).get().getDescription()).isEqualTo("new");
+       assertThat(bookRepo.findById(1).get().getDescription()).isEqualTo("new");
 
     }
 
@@ -107,6 +125,9 @@ class serviceBookImplementationTest {
                 new Book(2,56,"oldName", "author",
                         null, null, BookType.AUDIOBOOK,
                         45.6d, null));
+
+        assertThat(productRepo.existsById(2)).isEqualTo(true);
+        assertThat(bookRepo.existsById(2)).isEqualTo(true);
 
         bookService.changeBook(2, new Book(2,0,
                 null, null,
@@ -151,6 +172,7 @@ class serviceBookImplementationTest {
         bookService.deleteBookById(1);
         //checks if function returns empty optional when book is not found
         assertThat(bookRepo.existsById(1)).isEqualTo(false);
+        assertThat(productRepo.existsById(1)).isEqualTo(false);
     }
 
     @Test

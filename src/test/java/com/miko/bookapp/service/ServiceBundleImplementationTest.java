@@ -4,6 +4,7 @@ import com.miko.bookapp.model.Book;
 import com.miko.bookapp.model.BookBundle;
 import com.miko.bookapp.repo.BookRepo;
 import com.miko.bookapp.repo.BundleRepo;
+import com.miko.bookapp.repo.ProductRepo;
 import com.miko.bookapp.service.Implementation.ServiceBundleImplementation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,33 +30,40 @@ class ServiceBundleImplementationTest {
     @Mock
     private BundleRepo mockBundleRepo;
 
+    @Mock
+    private ProductRepo mockProductRepo;
+
     private ServiceBundle mockBundleService;
 
     private AutoCloseable autoCloseable;
 
     private static BookRepo memoryBookRepo;
     private static BundleRepo memoryBundleRepo;
+
+    private static ProductRepo memoryProductRepo;
     private static ServiceBundle memoryBundleService;
     private static ServiceBundle memoryMockBundleService;
 
     @BeforeAll
-    private static void setUp(){
+    public static void setUp(){
         memoryBookRepo = new MemoryBookRepo();
         memoryBundleRepo = new MemoryBundleRepo();
-        memoryBundleService = new ServiceBundleImplementation(memoryBundleRepo, memoryBookRepo);
+        memoryProductRepo = new MemoryProductRepo();
+        memoryBundleService = new ServiceBundleImplementation(memoryBundleRepo, memoryBookRepo, memoryProductRepo);
         var mockBookRepo = mock(BookRepo.class);
-        memoryMockBundleService = new ServiceBundleImplementation(memoryBundleRepo,mockBookRepo);
+        memoryMockBundleService = new ServiceBundleImplementation(memoryBundleRepo,mockBookRepo, memoryProductRepo);
     }
 
     @BeforeEach
-    private void setUpMock(){
+    public void setUpMock(){
         autoCloseable = MockitoAnnotations.openMocks(this);
-        mockBundleService = new ServiceBundleImplementation(mockBundleRepo, mockBookRepo);
+        mockBundleService = new ServiceBundleImplementation(mockBundleRepo, mockBookRepo, mockProductRepo);
     }
 
     private void tearDown() throws Exception {
         memoryBookRepo.deleteAll();
         memoryBundleRepo.deleteAll();
+        memoryProductRepo.deleteAll();
         autoCloseable.close();
     }
 
@@ -99,7 +107,8 @@ class ServiceBundleImplementationTest {
             //updating the in memory bundle repo
             memoryMockBundleService.updateBundle(1,dummyBundle(1,"new"));
             //checking if the bundle updated in the repo
-            assertArrayEquals(memoryMockBundleService.findBundleById(1).get().getDescription().toCharArray(), "new".toCharArray());
+            assertThat(memoryProductRepo.findById(1).get().getDescription()).isEqualTo("new");
+            assertThat(memoryBundleRepo.findById(1).get().getDescription()).isEqualTo("new");
         }else throw new RuntimeException("couldn't find the bundle");
 
     }
@@ -119,18 +128,20 @@ class ServiceBundleImplementationTest {
     void changeBundle() {
         //given
         //then
-        memoryMockBundleService.saveBundle(new BookBundle(1,"old",0.34, 0d, new HashSet<>() ));
+        memoryMockBundleService.saveBundle(new BookBundle(2,"old",0.34, 0d, new HashSet<>() ));
         //check if bundle saved
-        assertThat(memoryBundleRepo.existsById(1)).isEqualTo(true);
+        assertThat(memoryBundleRepo.existsById(2)).isEqualTo(true);
         //check if changeBundle returns a good response
-        assertThat(memoryMockBundleService.changeBundle(1, new BookBundle(1,"new",0.38d,null,null)).get().getDescription()).isEqualTo("new");
+        assertThat(memoryMockBundleService.changeBundle(2, new BookBundle(2,"new",0.38d,null,null)).get().getDescription()).isEqualTo("new");
         //check if changeBundle saves the changed bundle to the repo
-        memoryMockBundleService.changeBundle(1, new BookBundle(1,"new",0.38d,null,null));
-        if(memoryMockBundleService.findBundleById(1).isPresent()){
-            assertThat(memoryMockBundleService.findBundleById(1).get().getDescription()).isEqualTo("new");
-            assertThat(memoryMockBundleService.findBundleById(1).get().getDiscount()).isEqualTo(0.38d);
-            assertThat(memoryMockBundleService.findBundleById(1).get().getPrice()).isEqualTo(0d);
-            assertThat(memoryMockBundleService.findBundleById(1).get().getBooks()).isEqualTo(Collections.emptySet());
+        memoryMockBundleService.changeBundle(2, new BookBundle(2,"new",0.38d,null,null));
+        if(memoryMockBundleService.findBundleById(2).isPresent()){
+            var bookBundle = memoryMockBundleService.findBundleById(2).get();
+            assertThat(bookBundle.getDescription()).isEqualTo("new");
+            assertThat(bookBundle.getDescription()).isEqualTo("new");
+            assertThat(bookBundle.getDiscount()).isEqualTo(0.38d);
+            assertThat(bookBundle.getPrice()).isEqualTo(0d);
+            assertThat(bookBundle.getBooks()).isEqualTo(Collections.emptySet());
         }else throw new RuntimeException("couldn't find the bundle with id 1");
     }
 
@@ -155,6 +166,8 @@ class ServiceBundleImplementationTest {
         memoryMockBundleService.deleteBundleById(1);
         //checking if the bundle was deleted
         assertThat(memoryMockBundleService.findBundleById(1).isPresent()).isEqualTo(false);
+        assertThat(memoryProductRepo.findById(1).isPresent()).isEqualTo(false);
+        assertThat(memoryBookRepo.findById(1).isPresent()).isEqualTo(false);
     }
 
     @Test

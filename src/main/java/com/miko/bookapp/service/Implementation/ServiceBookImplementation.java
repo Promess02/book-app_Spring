@@ -33,7 +33,8 @@ public class ServiceBookImplementation implements ServiceBook {
     @Override
     public Book saveBook(Book book) {
         log.info("Saving book");
-        long id = productRepo.getNextGeneratedId();
+        long id = book.getId();
+        if(id == 0 && bookRepo.existsById(0)) id = productRepo.getNextGeneratedId();
 
        productRepo.saveEntity(new Product(id, book.getDescription(),book.getPrice()));
         book.setId(id);

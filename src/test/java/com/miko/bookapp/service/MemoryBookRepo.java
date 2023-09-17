@@ -59,4 +59,26 @@ public class MemoryBookRepo implements BookRepo {
     public void deleteAll() {
         map.clear();
     }
+
+    @Override
+    public long getNextGeneratedId() {
+        return map.size()+1;
+    }
+
+    @Override
+    public Book saveEntity(Book entity) {
+        if (entity.getId()==0){
+            try{
+                var field = Book.class.getSuperclass().getDeclaredField("id");
+                field.setAccessible(true);
+                field.set(entity,++index);
+            }catch (NoSuchFieldException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        map.put(entity.getId(), entity);
+
+        return entity;
+    }
 }

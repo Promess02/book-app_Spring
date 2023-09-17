@@ -1,23 +1,21 @@
 package com.miko.bookapp.service;
 
 import com.miko.bookapp.model.BookBundle;
-import com.miko.bookapp.repo.BundleRepo;
+import com.miko.bookapp.model.Product;
+import com.miko.bookapp.repo.ProductRepo;
 
 import java.util.*;
 
-public class MemoryBundleRepo implements BundleRepo {
+public class MemoryProductRepo implements ProductRepo {
     private int index = 0;
-    private Map<Long, BookBundle> map = new HashMap<>();
-    @Override
-    public List<BookBundle> findAll() {
-        return new ArrayList<>(map.values());
-    }
+    private Map<Long, Product> map = new HashMap<>();
+
 
     @Override
-    public BookBundle save(BookBundle entity) {
+    public Product saveEntity(Product entity) {
         if (entity.getId()==0){
             try{
-                var field = BookBundle.class.getSuperclass().getDeclaredField("id");
+                var field = Product.class.getDeclaredField("id");
                 field.setAccessible(true);
                 field.set(entity,++index);
             }catch (NoSuchFieldException | IllegalAccessException e) {
@@ -31,7 +29,29 @@ public class MemoryBundleRepo implements BundleRepo {
     }
 
     @Override
-    public Optional<BookBundle> findById(long id) {
+    public List<Product> findAll() {
+        return new ArrayList<>(map.values());
+    }
+
+    @Override
+    public Product save(Product entity) {
+        if (entity.getId()==0){
+            try{
+                var field = Product.class.getDeclaredField("id");
+                field.setAccessible(true);
+                field.set(entity,++index);
+            }catch (NoSuchFieldException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        map.put(entity.getId(), entity);
+
+        return entity;
+    }
+
+    @Override
+    public Optional<Product> findById(long id) {
         return Optional.ofNullable(map.get(id));
     }
 
@@ -43,6 +63,7 @@ public class MemoryBundleRepo implements BundleRepo {
     @Override
     public long count() {
         return map.size();
+
     }
 
     @Override
@@ -51,8 +72,9 @@ public class MemoryBundleRepo implements BundleRepo {
     }
 
     @Override
-    public void delete(BookBundle entity) {
+    public void delete(Product entity) {
         map.remove(entity.getId(),entity);
+
     }
 
     @Override
@@ -63,22 +85,5 @@ public class MemoryBundleRepo implements BundleRepo {
     @Override
     public long getNextGeneratedId() {
         return map.size()+1;
-    }
-
-    @Override
-    public BookBundle saveEntity(BookBundle entity) {
-        if (entity.getId()==0){
-            try{
-                var field = BookBundle.class.getSuperclass().getDeclaredField("id");
-                field.setAccessible(true);
-                field.set(entity,++index);
-            }catch (NoSuchFieldException | IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        map.put(entity.getId(), entity);
-
-        return entity;
     }
 }
