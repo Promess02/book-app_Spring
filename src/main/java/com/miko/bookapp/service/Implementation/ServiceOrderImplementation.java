@@ -4,9 +4,11 @@ import com.miko.bookapp.DTO.OrderItemDTO;
 import com.miko.bookapp.DTO.OrderReadDTO;
 import com.miko.bookapp.DTO.ServiceResponse;
 import com.miko.bookapp.Utils;
+import com.miko.bookapp.enums.OrderStatus;
 import com.miko.bookapp.model.Order;
 import com.miko.bookapp.model.OrderItem;
 import com.miko.bookapp.model.Product;
+import com.miko.bookapp.model.User;
 import com.miko.bookapp.repo.OrderItemRepo;
 import com.miko.bookapp.repo.OrderRepo;
 import com.miko.bookapp.repo.ProductRepo;
@@ -20,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -40,31 +43,23 @@ public class ServiceOrderImplementation implements ServiceOrder {
     @Override
     public ServiceResponse<OrderReadDTO> saveOrder(OrderReadDTO orderRead) {
 
-        if(orderRead.getUserEmail()==null) return new ServiceResponse<>(Optional.empty(),Utils.EMAIL_NOT_GIVEN);
-        var email = orderRead.getUserEmail();
-        var user = userRepo.findByEmail(email);
-        if(user.isEmpty()) return new ServiceResponse<>(Optional.empty(),Utils.EMAIL_NOT_FOUND);
+        var response = checkIfValidOrderReadDTO(orderRead);
+        if(!response.getMessage().equals("passed")) return response;
 
-        List<OrderItemDTO> orderItemsDTO = orderRead.getOrderItems();
-        if(orderItemsDTO.isEmpty()) return new ServiceResponse<>(Optional.empty(), Utils.NO_ORDER_ITEMS);
 
         List<OrderItem> orderItems = new LinkedList<>();
 
         long orderId = orderRepo.getNextGeneratedId();
+        User user = userRepo.findByEmail(orderRead.getUserEmail()).get();
         Order order = new Order();
         order.setId(orderId);
-        order.setUser(user.get());
+        order.setUser(user);
         order.setOrderDate(LocalDateTime.now());
 
-        for(OrderItemDTO orderItemDTO: orderItemsDTO){
+        for(OrderItemDTO orderItemDTO: orderRead.getOrderItems()){
             long productId = orderItemDTO.getProduct_id();
             if(productRepo.findById(productId).isPresent()) {
-                Product product = productRepo.findById(productId).get();
-                OrderItem orderItem = new OrderItem(null, product,orderItemDTO.getQuantity(),product.getPrice()*orderItemDTO.getQuantity());
-                var nextOrderItemId = orderItemRepo.getNextGeneratedId();
-                orderItem.setId(nextOrderItemId);
-                orderItems.add(orderItem);
-     //           orderItemRepo.save(orderItem);
+                orderItems = saveOrderItem(orderItemDTO,productId,orderItems);
             }else return new ServiceResponse<>(Optional.empty(),"no product found");
         }
 
@@ -72,10 +67,10 @@ public class ServiceOrderImplementation implements ServiceOrder {
         for(OrderItem orderItem: orderItems)
             totalAmount=totalAmount+orderItem.getTotalPrice();
 
-        if(totalAmount>user.get().getWalletWorth()) return new ServiceResponse<>(Optional.empty(),Utils.INSUFFICIENT_FUNDS);
+        if(totalAmount>user.getWalletWorth()) return new ServiceResponse<>(Optional.empty(),Utils.INSUFFICIENT_FUNDS);
 
-        user.get().decreaseWalletWorth(totalAmount);
-        userRepo.save(user.get());
+        user.decreaseWalletWorth(totalAmount);
+        userRepo.save(user);
         order.setOrderItems(orderItems);
         order.setTotalAmount(totalAmount);
         orderRepo.save(order);
@@ -96,39 +91,88 @@ public class ServiceOrderImplementation implements ServiceOrder {
         return Optional.empty();
     }
 
-    @Override
-    public ServiceResponse<Order> updateOrder(long id, OrderReadDTO order) {
-        return null;
+    private ServiceResponse<OrderReadDTO> checkIfValidOrderReadDTO(OrderReadDTO order){
+        if(order.getUserEmail()==null) return new ServiceResponse<>(Optional.empty(),Utils.EMAIL_NOT_GIVEN);
+        var email = order.getUserEmail();
+        var user = userRepo.findByEmail(email);
+        if(user.isEmpty()) return new ServiceResponse<>(Optional.empty(),Utils.EMAIL_NOT_FOUND);
+
+        List<OrderItemDTO> orderItemsDTO = order.getOrderItems();
+        if(orderItemsDTO.isEmpty()) return new ServiceResponse<>(Optional.empty(), Utils.NO_ORDER_ITEMS);
+        return new ServiceResponse<>(Optional.empty(),"passed");
+    }
+
+    private List<OrderItem> saveOrderItem(OrderItemDTO orderItemDTO, long productId, List<OrderItem> orderItems){
+        Product product = productRepo.findById(productId).get();
+        OrderItem orderItem = new OrderItem(null, product,orderItemDTO.getQuantity(),product.getPrice()*orderItemDTO.getQuantity());
+        var nextOrderItemId = orderItemRepo.getNextGeneratedId();
+        orderItem.setId(nextOrderItemId);
+        orderItems.add(orderItem);
+        orderItemRepo.save(orderItem);
+
+        return orderItems;
     }
 
     @Override
-    public ServiceResponse<Order> changeOrder(long id, OrderReadDTO order) {
-        return null;
+    public ServiceResponse<List<Order>> getOrdersSinceDays(int days, long userId) {
+        List<Order> listOfOrders = orderRepo.findAll();
+        Optional<User> user = userRepo.existsById(userId)?userRepo.findById(userId):Optional.empty();
+        if(user.isEmpty()) return new ServiceResponse<>(Optional.empty(), Utils.ID_NOT_FOUND);
+
+        List<Order> recentOrders = listOfOrders.stream()
+                .filter(order -> order.getUser().equals(user.get()))
+                .filter(order -> order.getOrderDate().isAfter(LocalDateTime.now().minusDays(days)))
+                .toList();
+
+        if(recentOrders.isEmpty()) return new ServiceResponse<>(Optional.empty(), Utils.NO_ORDERS_FOUND);
+        return new ServiceResponse<>(Optional.of(recentOrders), Utils.SUCCESS_ORDERS);
     }
 
     @Override
-    public ServiceResponse<Order> deleteOrderById(long id) {
-        return null;
+    public ServiceResponse<List<Order>> getOrdersForUser(long userId) {
+        List<Order> listOfOrders = orderRepo.findAll();
+        Optional<User> user = userRepo.existsById(userId)?userRepo.findById(userId):Optional.empty();
+        if(user.isEmpty()) return new ServiceResponse<>(Optional.empty(), Utils.ID_NOT_FOUND);
+        List<Order> orders = listOfOrders.stream()
+                .filter(order -> order.getUser().equals(user.get())).toList();
+        if(orders.isEmpty()) return new ServiceResponse<>(Optional.empty(),Utils.NO_ORDERS_FOUND);
+        return new ServiceResponse<>(Optional.empty(),Utils.SUCCESS_ORDERS);
     }
 
     @Override
-    public ServiceResponse<Order> addOrderItem(OrderItem orderItem, long orderId) {
-        return null;
+    public ServiceResponse<Order> refundOrder(long id) {
+        if(!orderRepo.existsById(id)) return new ServiceResponse<>(Optional.empty(),Utils.NO_ORDERS_FOUND);
+        var order = orderRepo.findById(id).isPresent()?orderRepo.findById(id).get():null;
+        if(order==null || order.getUser()==null || order.getTotalAmount()==0) return new ServiceResponse<>(Optional.empty(),Utils.ORDER_SAVE_FAILED);
+        var userEmail = order.getUser().getEmail();
+        var user = userRepo.findByEmail(userEmail).isPresent()?userRepo.findByEmail(userEmail).get():null;
+        if(user==null) return new ServiceResponse<>(Optional.empty(),"User not found");
+        user.increaseWalletWorth(order.getTotalAmount());
+        orderRepo.findById(id).get().setOrderStatus(OrderStatus.REFUNDED);
+        Order refundedOrder = orderRepo.existsById(id)?orderRepo.findById(id).get():null;
+        if(refundedOrder==null) return new ServiceResponse<>(Optional.empty(), "refunded order not found");
+        orderRepo.save(refundedOrder);
+        return new ServiceResponse<>(Optional.of(refundedOrder),Utils.ORDER_REFUNDED);
     }
 
     @Override
-    public ServiceResponse<Order> deleteOrderItem(OrderItem orderItem, long orderId) {
-        return null;
-    }
+    public ServiceResponse<Order> changeStatus(long id, String newStatus) {
+        Optional<Order> order = orderRepo.existsById(id)?orderRepo.findById(id):Optional.empty();
+        if(order.isEmpty()) return new ServiceResponse<>(Optional.empty(),Utils.ID_NOT_FOUND);
+        OrderStatus orderStatus;
+        try{
+            orderStatus = OrderStatus.fromValue(newStatus);
+        }catch (IllegalArgumentException e){
+            return new ServiceResponse<>(Optional.empty(),Utils.BAD_ENUM_VALUE);
+        }
+        if(orderStatus==null) return new ServiceResponse<>(Optional.empty(),"failed changing order status");
+        order.get().setOrderStatus(orderStatus);
 
-    @Override
-    public ServiceResponse<Order> deleteOrder(long id) {
-        return null;
-    }
+        orderRepo.save(order.get());
 
-    @Override
-    public ServiceResponse<List<Order>> getOrdersSinceDays(int days) {
-        return null;
+        Order orderChanged = orderRepo.existsById(id)?orderRepo.findById(id).get():null;
+        if(orderChanged==null) return new ServiceResponse<>(Optional.empty(), "no order found");
+        return new ServiceResponse<>(Optional.of(orderChanged),Utils.ORDER_SAVED);
     }
 
     @Override

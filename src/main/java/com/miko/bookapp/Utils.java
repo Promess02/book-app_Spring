@@ -27,6 +27,13 @@ public class Utils {
     public static String ORDER_SAVED = "order has been saved successfully";
     public static String INSUFFICIENT_FUNDS = "account funds are insufficient to execute transaction";
 
+    public static String SUCCESS_ORDERS = "successfully retrieved orders";
+    public static String NO_ORDERS_FOUND = "no orders were found";
+    public static String ORDER_REFUNDED = "order refunded successfully";
+    public static String BAD_ENUM_VALUE = "bad enum value provided";
+    public static String ORDER_SAVE_FAILED = "order saving failed";
+
+
 
     public static Field[] extractFields(Object object) {
         List<Field> fieldsList = new ArrayList<>();

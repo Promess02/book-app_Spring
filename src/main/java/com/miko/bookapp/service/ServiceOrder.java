@@ -14,12 +14,9 @@ public interface ServiceOrder {
     List<Order> getAllOrders();
     ServiceResponse<OrderReadDTO> saveOrder(OrderReadDTO order);
     Optional<Order> findOrderById(long id);
-    ServiceResponse<Order> updateOrder(long id, OrderReadDTO order);
-    ServiceResponse<Order> changeOrder(long id, OrderReadDTO order);
-    ServiceResponse<Order> deleteOrderById(long id);
-    ServiceResponse<Order> addOrderItem(OrderItem orderItem, long orderId);
-    ServiceResponse<Order> deleteOrderItem(OrderItem orderItem, long orderId);
-    ServiceResponse<Order> deleteOrder(long id);
-    ServiceResponse<List<Order>> getOrdersSinceDays(int days);
+    ServiceResponse<List<Order>> getOrdersSinceDays(int days, long userId);
+    ServiceResponse<List<Order>> getOrdersForUser(long userId);
+    ServiceResponse<Order> refundOrder(long id);
+    ServiceResponse<Order> changeStatus(long id, String newStatus);
     void deleteAllOrders();
 }

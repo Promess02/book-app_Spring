@@ -36,12 +36,35 @@ public class OrderController {
     public ResponseEntity<Response> saveOrder(@Valid @RequestBody OrderReadDTO orderReadDTO){
         var response = service.saveOrder(orderReadDTO);
         var message = response.getMessage();
-        if(message.equals(Utils.EMAIL_NOT_GIVEN)) return ResponseUtil.badRequestResponse(Utils.EMAIL_NOT_GIVEN);
-        if(message.equals(Utils.EMAIL_NOT_FOUND)) return ResponseUtil.badRequestResponse(Utils.EMAIL_NOT_FOUND);
-        if(message.equals(Utils.NO_ORDER_ITEMS)) return ResponseUtil.badRequestResponse(Utils.NO_ORDER_ITEMS);
-        if(message.equals(Utils.INSUFFICIENT_FUNDS)) return ResponseUtil.badRequestResponse(Utils.INSUFFICIENT_FUNDS);
         if(message.equals(Utils.ORDER_SAVED))
             return ResponseUtil.okResponse("order has been saved", "order", response.getData());
-        return ResponseUtil.somethingWentWrongResponse(message);
+        return ResponseUtil.badRequestResponse(message);
+    }
+
+    @GetMapping("/getForUser/{id}")
+    public ResponseEntity<Response> getOrdersForUser(@PathVariable long userId){
+        var response = service.getOrdersForUser(userId);
+        String message = response.getMessage();
+
+        if(message.equals(Utils.ID_NOT_FOUND)) return ResponseUtil.badRequestResponse("user id not found");
+        if(message.equals(Utils.NO_ORDERS_FOUND)) return ResponseUtil.badRequestResponse("no orders found for user");
+        if(message.equals(Utils.SUCCESS_ORDERS)) return ResponseUtil.okResponse("orders for user retrieved", "user", response.getData());
+        return ResponseUtil.badRequestResponse(message);
+    }
+
+    @PatchMapping("/refund/{orderId}")
+    public ResponseEntity<Response> refundOrder(@PathVariable long orderId){
+        var response = service.refundOrder(orderId);
+        var message = response.getMessage();
+        if(message.equals(Utils.ORDER_REFUNDED)) return ResponseUtil.okResponse(Utils.ORDER_REFUNDED,"order", response.getData());
+        return ResponseUtil.badRequestResponse(message);
+    }
+
+    @PatchMapping("/changeStatus/{orderId}")
+    public ResponseEntity<Response> changeStatus(@PathVariable long orderId, @RequestBody String status){
+        var response = service.changeStatus(orderId,status);
+        var message = response.getMessage();
+        if(message.equals(Utils.ORDER_SAVED)) return ResponseUtil.okResponse("status of order changed successfully", "order",response.getData());
+        return ResponseUtil.badRequestResponse(message);
     }
 }

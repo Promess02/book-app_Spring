@@ -2,6 +2,7 @@ package com.miko.bookapp.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.miko.bookapp.enums.OrderStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,11 +23,16 @@ public class Order {
 
     private LocalDateTime orderDate;
 
+    @Column(name = "order_status")
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus;
+
     private Double totalAmount;
 
     public Order(){
         orderItems = new ArrayList<>();
         orderDate = LocalDateTime.now();
+        orderStatus = OrderStatus.ORDERED;
     }
     public Order(Long id, User user, List<OrderItem> orderItems){
         this.id = id;
@@ -99,6 +105,14 @@ public class Order {
             temp = temp + orderItem.getTotalPrice();
         }
         totalAmount = temp;
+    }
+
+    public OrderStatus getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
     }
 
 }
