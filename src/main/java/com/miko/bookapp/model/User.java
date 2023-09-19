@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+   @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @Column(unique = true)
     private String email;
@@ -28,6 +28,15 @@ public class User {
 
     public User() {
         walletWorth = 0d;
+    }
+
+    public User(long id, String email, String password, boolean premiumStatus, List<Order> orderList, Double walletWorth) {
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.premiumStatus = premiumStatus;
+        this.orderList = orderList;
+        this.walletWorth = walletWorth;
     }
 
     public long getId() {
@@ -58,7 +67,7 @@ public class User {
         return premiumStatus;
     }
 
-    void setPremiumStatus(boolean premiumStatus) {
+    public void setPremiumStatus(boolean premiumStatus) {
         this.premiumStatus = premiumStatus;
     }
 
@@ -92,4 +101,15 @@ public class User {
         else throw new RuntimeException("not sufficient funds in wallet");
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", premiumStatus=" + premiumStatus +
+                ", orderList=" + orderList +
+                ", walletWorth=" + walletWorth +
+                '}';
+    }
 }

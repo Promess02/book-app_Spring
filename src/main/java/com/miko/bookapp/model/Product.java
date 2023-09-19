@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Table(name = "product")
-public class Product {
+public class Product{
     @Id
 //    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long id;
@@ -48,5 +48,12 @@ public class Product {
         this.id = id;
     }
 
-
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                '}';
+    }
 }

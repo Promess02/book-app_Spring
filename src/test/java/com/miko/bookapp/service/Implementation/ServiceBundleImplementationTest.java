@@ -1,4 +1,4 @@
-package com.miko.bookapp.service;
+package com.miko.bookapp.service.Implementation;
 
 import com.miko.bookapp.model.Book;
 import com.miko.bookapp.model.BookBundle;
@@ -6,6 +6,10 @@ import com.miko.bookapp.repo.BookRepo;
 import com.miko.bookapp.repo.BundleRepo;
 import com.miko.bookapp.repo.ProductRepo;
 import com.miko.bookapp.service.Implementation.ServiceBundleImplementation;
+import com.miko.bookapp.service.MemoryBookRepo;
+import com.miko.bookapp.service.MemoryBundleRepo;
+import com.miko.bookapp.service.MemoryProductRepo;
+import com.miko.bookapp.service.ServiceBundle;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

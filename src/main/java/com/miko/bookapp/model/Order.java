@@ -35,6 +35,7 @@ public class Order {
         orderStatus = OrderStatus.ORDERED;
     }
     public Order(Long id, User user, List<OrderItem> orderItems){
+        this();
         this.id = id;
         this.user = user;
         this.orderItems = orderItems;
@@ -42,9 +43,7 @@ public class Order {
     }
 
     public Order(Long id, User user, List<OrderItem> orderItems, LocalDateTime orderDate, Double totalAmount) {
-        this.id = id;
-        this.user = user;
-        this.orderItems = orderItems;
+        this(id,user,orderItems);
         this.orderDate = orderDate;
         this.totalAmount = totalAmount;
     }

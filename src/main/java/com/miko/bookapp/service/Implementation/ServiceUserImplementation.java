@@ -147,7 +147,7 @@ public class ServiceUserImplementation implements ServiceUser {
 
     @Override
     public ServiceResponse<User> changePassword(String email, String oldPassword, String newPassword) {
-
+        if(email==null) return new ServiceResponse<>(Optional.empty(),Utils.EMAIL_NOT_GIVEN);
         if(userRepo.existsByEmail(email)){
             Optional<User> user = userRepo.findByEmail(email);
             if(user.isPresent() && user.get().getPassword().equals(oldPassword)) user.get().setPassword(newPassword);

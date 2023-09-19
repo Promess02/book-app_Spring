@@ -76,4 +76,5 @@ public class OrderItem {
     private void calculateTotalPrice(){
         totalPrice = quantity * product.getPrice();
     }
+
 }

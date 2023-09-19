@@ -26,5 +26,10 @@ public class OrderReadDTO {
         this.orderItems = orderItems;
     }
 
+    public OrderReadDTO(String userEmail, List<OrderItemDTO> orderItems, Double totalAmount){
+        this(userEmail,orderItems);
+        this.totalAmount = totalAmount;
+    }
+
 
 }
