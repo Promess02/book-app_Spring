@@ -1,5 +1,10 @@
 package com.miko.bookapp;
 
+import com.miko.bookapp.DTO.OrderItemDTO;
+import com.miko.bookapp.DTO.OrderReadDTO;
+import com.miko.bookapp.model.Order;
+import com.miko.bookapp.model.OrderItem;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,8 +37,6 @@ public class Utils {
     public static String BAD_ENUM_VALUE = "bad enum value provided";
     public static String ORDER_SAVE_FAILED = "order saving failed";
 
-
-
     public static Field[] extractFields(Object object) {
         List<Field> fieldsList = new ArrayList<>();
         Class<?> currentClass = object.getClass();
@@ -46,6 +49,26 @@ public class Utils {
 
         Field[] fieldsArray = new Field[fieldsList.size()];
         return fieldsList.toArray(fieldsArray);
+    }
+
+    public OrderItemDTO toOrderItemDTO(OrderItem orderItem){
+        OrderItemDTO result = new OrderItemDTO();
+        if(orderItem.getOrder()==null) result.setCustom_order_id(0);
+        else result.setCustom_order_id(orderItem.getId());
+        result.setProduct_id(orderItem.getProduct().getId());
+        result.setQuantity(orderItem.getQuantity());
+        return result;
+    }
+
+    public OrderReadDTO toOrderDTO(Order order){
+        OrderReadDTO result = new OrderReadDTO();
+        result.setUserEmail(order.getUser().getEmail());
+        result.setTotalAmount(order.getTotalAmount());
+        List<OrderItemDTO> orderItemDTOList = new ArrayList<>();
+        for(OrderItem orderItem: order.getOrderItems())
+            orderItemDTOList.add(toOrderItemDTO(orderItem));
+        result.setOrderItems(orderItemDTOList);
+        return result;
     }
 
 }

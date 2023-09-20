@@ -1,5 +1,6 @@
 package com.miko.bookapp.DTO;
 
+import com.miko.bookapp.model.Order;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -15,7 +16,7 @@ public class OrderItemDTO {
     private int quantity;
 
 
-
+    public OrderItemDTO(){}
     public OrderItemDTO(long custom_order_id, long product_id, int quantity) {
         this.custom_order_id = custom_order_id;
         this.product_id = product_id;

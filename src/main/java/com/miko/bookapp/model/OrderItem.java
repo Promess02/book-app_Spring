@@ -25,11 +25,19 @@ public class OrderItem {
 
     public OrderItem(){}
 
-    public OrderItem(Order custom_order, Product product, int quantity, Double totalPrice) {
+    public OrderItem(Order custom_order, Product product, int quantity) {
         this.custom_order = custom_order;
         this.product = product;
         this.quantity = quantity;
-        this.totalPrice = totalPrice;
+        calculateTotalPrice();
+    }
+
+    public OrderItem(Long id, Order custom_order, Product product, int quantity) {
+        this.id = id;
+        this.custom_order = custom_order;
+        this.product = product;
+        this.quantity = quantity;
+        calculateTotalPrice();
     }
 
     public Long getId() {

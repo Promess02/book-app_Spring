@@ -5,6 +5,7 @@ import com.miko.bookapp.DTO.OrderReadDTO;
 import com.miko.bookapp.model.*;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashSet;
 
 public class Dummy {
@@ -21,8 +22,9 @@ public class Dummy {
         return new User(id, email,"secret",false,null,0d);
     }
 
-    public static Order dummyOrder(long id, User user, Double totalAmount){
-        return new Order(id, user, null, LocalDateTime.now(), totalAmount);
+    public static Order dummyOrder(long id, Double totalAmount){
+
+        return new Order(id, dummyUser(0,"miko2002"), Collections.emptyList(), LocalDateTime.now(), totalAmount);
     }
 
     public static OrderReadDTO dummyOrderDTO(String email, Double totalAmount){

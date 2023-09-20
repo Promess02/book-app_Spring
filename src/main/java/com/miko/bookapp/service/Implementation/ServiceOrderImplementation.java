@@ -104,7 +104,7 @@ public class ServiceOrderImplementation implements ServiceOrder {
 
     private List<OrderItem> saveOrderItem(OrderItemDTO orderItemDTO, long productId, List<OrderItem> orderItems){
         Product product = productRepo.findById(productId).get();
-        OrderItem orderItem = new OrderItem(null, product,orderItemDTO.getQuantity(),product.getPrice()*orderItemDTO.getQuantity());
+        OrderItem orderItem = new OrderItem(null, product,orderItemDTO.getQuantity());
         var nextOrderItemId = orderItemRepo.getNextGeneratedId();
         orderItem.setId(nextOrderItemId);
         orderItems.add(orderItem);
@@ -136,17 +136,17 @@ public class ServiceOrderImplementation implements ServiceOrder {
         List<Order> orders = listOfOrders.stream()
                 .filter(order -> order.getUser().equals(user.get())).toList();
         if(orders.isEmpty()) return new ServiceResponse<>(Optional.empty(),Utils.NO_ORDERS_FOUND);
-        return new ServiceResponse<>(Optional.empty(),Utils.SUCCESS_ORDERS);
+        return new ServiceResponse<>(Optional.of(orders),Utils.SUCCESS_ORDERS);
     }
 
     @Override
     public ServiceResponse<Order> refundOrder(long id) {
         if(!orderRepo.existsById(id)) return new ServiceResponse<>(Optional.empty(),Utils.NO_ORDERS_FOUND);
         var order = orderRepo.findById(id).isPresent()?orderRepo.findById(id).get():null;
-        if(order==null || order.getUser()==null || order.getTotalAmount()==0) return new ServiceResponse<>(Optional.empty(),Utils.ORDER_SAVE_FAILED);
+        if(order==null || order.getUser()==null ) return new ServiceResponse<>(Optional.empty(),Utils.ORDER_SAVE_FAILED);
         var userEmail = order.getUser().getEmail();
         var user = userRepo.findByEmail(userEmail).isPresent()?userRepo.findByEmail(userEmail).get():null;
-        if(user==null) return new ServiceResponse<>(Optional.empty(),"User not found");
+        if(user==null) return new ServiceResponse<>(Optional.empty(),Utils.EMAIL_NOT_FOUND);
         user.increaseWalletWorth(order.getTotalAmount());
         orderRepo.findById(id).get().setOrderStatus(OrderStatus.REFUNDED);
         Order refundedOrder = orderRepo.existsById(id)?orderRepo.findById(id).get():null;
