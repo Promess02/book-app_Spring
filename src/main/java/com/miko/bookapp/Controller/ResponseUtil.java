@@ -40,7 +40,7 @@ public class ResponseUtil {
     }
 
     public static ResponseEntity<Response> badRequestResponse(String message){
-        return ResponseEntity.ok(
+        return ResponseEntity.badRequest().body(
                 Response.builder()
                         .message(message)
                         .timestamp(LocalDateTime.now())

@@ -69,7 +69,7 @@ public class ServiceUserImplementation implements ServiceUser {
         if(userRepo.existsById(id)){
             userRepo.save(user);
             log.info("updated user with id: " + id);
-            return userRepo.findById(id);
+            return Optional.of(user);
         }
         log.info("user with id: " + id + " not found");
         return Optional.empty();
@@ -82,7 +82,7 @@ public class ServiceUserImplementation implements ServiceUser {
         if(userRepo.existsByEmail(email)){
             userRepo.save(user);
             log.info("updated user with email: " + email);
-            return new ServiceResponse<>(userRepo.findByEmail(email),Utils.ACCOUNT_UPDATED);
+            return new ServiceResponse<>(Optional.of(user),Utils.ACCOUNT_UPDATED);
         }
         log.info("user with email: " + email + " not found");
         return new ServiceResponse<>(Optional.empty(), Utils.EMAIL_NOT_FOUND);
@@ -187,7 +187,7 @@ public class ServiceUserImplementation implements ServiceUser {
 
     @Override
     public ServiceResponse<User> deleteUserByEmail(String email) {
-        if(email==null) return new ServiceResponse<>(Optional.empty(),Utils.EMAIL_NOT_GIVEN);
+        if(email.equals("")) return new ServiceResponse<>(Optional.empty(),Utils.EMAIL_NOT_GIVEN);
         if(userRepo.existsByEmail(email)){
             Optional<User> user = userRepo.findByEmail(email);
             if(user.isEmpty()) return new ServiceResponse<>(Optional.empty(), Utils.EMAIL_NOT_FOUND);

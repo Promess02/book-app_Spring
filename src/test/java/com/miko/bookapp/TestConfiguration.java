@@ -5,10 +5,9 @@ import com.miko.bookapp.model.BookBundle;
 import com.miko.bookapp.model.OrderItem;
 import com.miko.bookapp.model.Product;
 import com.miko.bookapp.repo.*;
-import com.miko.bookapp.service.MemoryOrderRepo;
-import com.miko.bookapp.service.ServiceBook;
+import com.miko.bookapp.service.*;
+import com.miko.bookapp.service.Implementation.ServiceUserImplementation;
 import com.miko.bookapp.service.Implementation.ServiceBookImplementation;
-import com.miko.bookapp.service.ServiceBundle;
 import com.miko.bookapp.service.Implementation.ServiceBundleImplementation;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -350,6 +349,12 @@ public class TestConfiguration {
 
     @Bean
     @Primary
+    UserRepo testUserRepo() {
+        return new MemoryUserRepo();
+    }
+
+    @Bean
+    @Primary
     OrderRepo testOrderRepo(){
         return new MemoryOrderRepo();
     }
@@ -365,6 +370,12 @@ public class TestConfiguration {
     @Primary
     ServiceBundle testServiceBundle(){
         return new ServiceBundleImplementation(testBundleRepo(), testBookRepo(), testProductRepo());
+    }
+
+    @Bean
+    @Primary
+    ServiceUser testServiceUser(){
+        return new ServiceUserImplementation(testUserRepo(),testOrderRepo());
     }
 
 }

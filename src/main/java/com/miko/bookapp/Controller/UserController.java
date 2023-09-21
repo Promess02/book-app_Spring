@@ -10,6 +10,7 @@ import com.miko.bookapp.service.ServiceUser;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,65 +42,50 @@ public class UserController {
         return result.map(user -> ResponseUtil.okResponse("user with email: " + email + " retrieved", "user", user)).orElseGet(() -> ResponseUtil.emailNotFoundResponse(email));
     }
 
-    @PostMapping("/updateUser/{id}")
+    @PutMapping("/updateUser/{id}")
     public ResponseEntity<Response> updateUserById(@PathVariable int id, @RequestBody User updatedUser){
         Optional<User> result = service.updateUserById(id, updatedUser);
         return result.map(user -> ResponseUtil.okResponse("user with id: " + id + " updated", "user", user)).orElseGet(() -> ResponseUtil.idNotFoundResponse(User.class));
     }
 
-    @PostMapping("/updateUserByEmail")
+    @PutMapping("/updateUserByEmail")
     public ResponseEntity<Response> updateUserByEmail(@RequestBody User updatedUser){
         ServiceResponse<User> result = service.updateUserByEmail(updatedUser);
 
-        if(result.getMessage().equals(Utils.EMAIL_NOT_GIVEN)) return ResponseUtil.badRequestResponse(Utils.EMAIL_NOT_GIVEN);
-        if (result.getMessage().equals(Utils.EMAIL_NOT_FOUND)) return ResponseUtil.badRequestResponse(Utils.EMAIL_NOT_FOUND);
-
         if (result.getMessage().equals(Utils.ACCOUNT_UPDATED))
             return ResponseUtil.okResponse(Utils.ACCOUNT_UPDATED, "user", result.getData());
-        return ResponseUtil.somethingWentWrongResponse(result.getMessage());
+        return ResponseUtil.badRequestResponse(result.getMessage());
     }
 
     @PatchMapping("/changeUser")
     public ResponseEntity<Response> changeUserByEmail(@RequestBody User updatedUser){
         ServiceResponse<User> result = service.changeUserByEmail(updatedUser);
 
-        if(result.getMessage().equals(Utils.EMAIL_NOT_GIVEN)) return ResponseUtil.badRequestResponse(Utils.EMAIL_NOT_GIVEN);
-        if (result.getMessage().equals(Utils.EMAIL_NOT_FOUND)) return ResponseUtil.badRequestResponse(Utils.EMAIL_NOT_FOUND);
-
         if (result.getMessage().equals(Utils.ACCOUNT_UPDATED))
             return ResponseUtil.okResponse(Utils.ACCOUNT_UPDATED, "user", result.getData());
-        return ResponseUtil.somethingWentWrongResponse(result.getMessage());
+        return ResponseUtil.badRequestResponse(result.getMessage());
     }
 
     @PostMapping("/create")
     public ResponseEntity<Response> createNewUser(@RequestBody User user){
         ServiceResponse<User> response = service.saveUser(user);
+        var message = response.getMessage();
 
-        if(response.getMessage().equals(Utils.EMAIL_OR_PASS_NOT_GIVEN)){
-            return ResponseUtil.badRequestResponse(Utils.EMAIL_OR_PASS_NOT_GIVEN);
-        }
-
-        if(response.getMessage().equals(Utils.EMAIL_EXISTS)){
-            return ResponseUtil.badRequestResponse(Utils.EMAIL_EXISTS);
-        }
-
-        if(response.getMessage().equals(Utils.ACCOUNT_CREATED)){
+        if(message.equals(Utils.ACCOUNT_CREATED)){
             return ResponseUtil.okResponse(Utils.ACCOUNT_CREATED, "user", response.getData());
         }
-        return ResponseUtil.somethingWentWrongResponse(response.getMessage());
+
+        return ResponseUtil.badRequestResponse(message);
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Response> deleteUserById(@PathVariable long id){
         ServiceResponse<User> response = service.deleteUserById(id);
-
-        if(response.getMessage().equals(Utils.ID_NOT_FOUND)){
-            return ResponseUtil.idNotFoundResponse(User.class);
-        }
-        if(response.getMessage().equals(Utils.ACCOUNT_UPDATED)){
+        var message = response.getMessage();
+        if(message.equals(Utils.ACCOUNT_UPDATED)){
             return ResponseUtil.okResponse("user with id: " + id + " deleted", "user", response.getData());
         }
-        return ResponseUtil.somethingWentWrongResponse(response.getMessage());
+        return ResponseUtil.badRequestResponse(message);
     }
 
     @DeleteMapping("/deleteByEmail")
@@ -107,11 +93,9 @@ public class UserController {
         ServiceResponse<User> response = service.deleteUserByEmail(email);
         var serviceResponse = response.getMessage();
 
-        if(serviceResponse.equals(Utils.EMAIL_NOT_GIVEN)) return ResponseUtil.badRequestResponse(Utils.EMAIL_NOT_GIVEN);
-        if(serviceResponse.equals(Utils.EMAIL_NOT_FOUND)) return ResponseUtil.badRequestResponse(Utils.EMAIL_NOT_FOUND);
         if(serviceResponse.equals(Utils.ACCOUNT_UPDATED)) return ResponseUtil.okResponse("successfully deleted user with email: " + email,
                 "user", response.getData());
-        return ResponseUtil.somethingWentWrongResponse(response.getMessage());
+        return ResponseUtil.badRequestResponse(serviceResponse);
     }
 
     @PatchMapping("/addFunds/{id}")
@@ -127,18 +111,16 @@ public class UserController {
     public ResponseEntity<Response> changePassword(@RequestBody PasswordForm passwordForm){
         ServiceResponse<User> response = service.changePassword(passwordForm.getEmail(), passwordForm.getOldPassword(), passwordForm.getNewPassword());
 
-        if (response.getMessage().equals(Utils.BAD_PASSWORD)) {
-            return ResponseUtil.badRequestResponse(Utils.BAD_PASSWORD);
-        }
-        if(response.getMessage().equals(Utils.EMAIL_NOT_FOUND)){
-            return ResponseUtil.badRequestResponse(Utils.EMAIL_NOT_FOUND);
-        }
-        if(response.getMessage().equals(Utils.PASS_CHANGED)){
+        var message = response.getMessage();
+        if(message.equals(Utils.PASS_CHANGED)){
             return ResponseUtil.okResponse(Utils.PASS_CHANGED, "user", response.getData());
         }
-        return ResponseUtil.somethingWentWrongResponse(response.getMessage());
+        return ResponseUtil.badRequestResponse(message);
     }
 
-
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public static ResponseEntity<Response> badEnumResponse(){
+        return ResponseUtil.badRequestResponse(Utils.EMAIL_NOT_GIVEN);
+    }
 
 }
