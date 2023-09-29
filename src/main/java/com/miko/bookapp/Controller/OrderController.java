@@ -41,7 +41,7 @@ public class OrderController {
         return ResponseUtil.badRequestResponse(message);
     }
 
-    @GetMapping("/getForUser/{id}")
+    @GetMapping("/getForUser/{userId}")
     public ResponseEntity<Response> getOrdersForUser(@PathVariable long userId){
         var response = service.getOrdersForUser(userId);
         String message = response.getMessage();

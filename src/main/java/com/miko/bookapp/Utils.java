@@ -1,5 +1,10 @@
 package com.miko.bookapp;
 
+import com.miko.bookapp.DTO.OrderItemDTO;
+import com.miko.bookapp.DTO.OrderReadDTO;
+import com.miko.bookapp.model.Order;
+import com.miko.bookapp.model.OrderItem;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,4 +54,23 @@ public class Utils {
         return fieldsList.toArray(fieldsArray);
     }
 
+    public static OrderItemDTO toOrderItemDTO(OrderItem orderItem){
+        OrderItemDTO result = new OrderItemDTO();
+        if(orderItem.getOrder()==null) result.setCustom_order_id(0);
+        else result.setCustom_order_id(orderItem.getId());
+        result.setProduct_id(orderItem.getProduct().getId());
+        result.setQuantity(orderItem.getQuantity());
+        return result;
+    }
+
+    public static OrderReadDTO toOrderDTO(Order order){
+        OrderReadDTO result = new OrderReadDTO();
+        result.setUserEmail(order.getUser().getEmail());
+        result.setTotalAmount(order.getTotalAmount());
+        List<OrderItemDTO> orderItemDTOList = new ArrayList<>();
+        for(OrderItem orderItem: order.getOrderItems())
+            orderItemDTOList.add(toOrderItemDTO(orderItem));
+        result.setOrderItems(orderItemDTOList);
+        return result;
+    }
 }

@@ -173,4 +173,9 @@ public class ServiceBundleImplementation implements ServiceBundle {
         }
         return Optional.empty();
     }
+
+    @Override
+    public void deleteAll(){
+        bundleRepo.deleteAll();
+    }
 }

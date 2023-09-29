@@ -25,4 +25,6 @@ public interface ServiceBundle {
     Optional<BookBundle> changeBundleDiscount(long bundleID, double newDiscount);
 
     ServiceResponse<List<Book>> getListOfBooksInBundle(long bundleID);
+
+    void deleteAll();
 }

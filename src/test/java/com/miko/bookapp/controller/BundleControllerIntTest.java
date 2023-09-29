@@ -2,17 +2,17 @@ package com.miko.bookapp.controller;
 
 
 import com.miko.bookapp.Dummy;
+import com.miko.bookapp.repo.ProductRepo;
 import com.miko.bookapp.service.ServiceBook;
 import com.miko.bookapp.service.ServiceBundle;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -35,9 +35,18 @@ public class BundleControllerIntTest {
     private ServiceBook serviceBook;
 
     @Autowired
+    private ProductRepo productRepo;
+    @Autowired
     private MockMvc mockMvc;
 
     public static final MediaType APPLICATION_JSON_UTF8 = new MediaType(MediaType.APPLICATION_JSON.getType(), MediaType.APPLICATION_JSON.getSubtype(), StandardCharsets.UTF_8);
+
+    @AfterEach
+    void tearDown() {
+        serviceBook.deleteAllBooks();
+        serviceBundle.deleteAll();
+        productRepo.deleteAll();
+    }
 
     @Test
     @DisplayName("checks if returns all bundles")
@@ -159,13 +168,14 @@ public class BundleControllerIntTest {
     @Test
     @DisplayName("checks if adds a book to a bundle correctly")
     public void httpPatch_addBookToBundle(){
+        // books and bundles are products, so first it saves a book with 1 and then the next product is bundle with id 2
         serviceBook.saveBook(Dummy.dummyBook(1,"Book_addBookToBundle"));
-        serviceBundle.saveBundle(Dummy.dummyBundle(1, "Bundle_addBookToBundle"));
+        serviceBundle.saveBundle(Dummy.dummyBundle(2, "Bundle_addBookToBundle"));
 
         try{
-            mockMvc.perform(MockMvcRequestBuilders.patch("/bundles/addBook/1/1"))
+            mockMvc.perform(MockMvcRequestBuilders.patch("/bundles/addBook/2/1"))
                     .andExpect(MockMvcResultMatchers.status().isOk())
-                    .andExpect(MockMvcResultMatchers.content().string(containsString("added a book to bundle with id: 1")))
+                    .andExpect(MockMvcResultMatchers.content().string(containsString("added a book to bundle with id: 2")))
                     .andExpect(MockMvcResultMatchers.content().string(containsString("Bundle_addBookToBundle")));
         } catch (Exception e) {
             throw new RuntimeException(e + ": error adding a book to a bundle");
@@ -175,13 +185,15 @@ public class BundleControllerIntTest {
     @Test
     @DisplayName("checks if deletes a book from a bundle correctly")
     public void httpPatch_deleteBookFromBundle(){
+        // books and bundles are products, so first it saves a book with 1 and then the next product is bundle with id 2
         serviceBook.saveBook(Dummy.dummyBook(1,"Book_deleteBookFromBundle"));
-        serviceBundle.saveBundle(Dummy.dummyBundle(1, "Bundle_deleteBookFromBundle"));
+        serviceBundle.saveBundle(Dummy.dummyBundle(2, "Bundle_deleteBookFromBundle"));
+        serviceBundle.addBookToBundle(2,1);
 
         try{
-            mockMvc.perform(MockMvcRequestBuilders.patch("/bundles/deleteBook/1/1"))
+            mockMvc.perform(MockMvcRequestBuilders.patch("/bundles/deleteBook/2/1"))
                     .andExpect(MockMvcResultMatchers.status().isOk())
-                    .andExpect(MockMvcResultMatchers.content().string(containsString("deleted a book with id: 1 from bundle with id: 1")))
+                    .andExpect(MockMvcResultMatchers.content().string(containsString("deleted a book with id: 1 from bundle with id: 2")))
                     .andExpect(MockMvcResultMatchers.content().string(containsString("Bundle_deleteBookFromBundle")));
         } catch (Exception e) {
             throw new RuntimeException(e + ": error deleting a book from a bundle");

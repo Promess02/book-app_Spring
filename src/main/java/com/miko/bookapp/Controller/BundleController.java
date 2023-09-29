@@ -97,7 +97,7 @@ public class BundleController {
         return ResponseUtil.idNotFoundResponse(BookBundle.class);
     }
 
-    @PatchMapping("/deleteBook/{bookID}/{bundleID}")
+    @PatchMapping("/deleteBook/{bundleID}/{bookID}")
     public ResponseEntity<Response> deleteBookFromBundle(@PathVariable long bookID, @PathVariable long bundleID){
         Optional<BookBundle> result = service.findBundleById(bundleID);
 

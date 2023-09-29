@@ -273,7 +273,7 @@ class ServiceUserImplementationTest {
         var responseFail = serviceUser.deleteUserByEmail("unknown");
         assertThat(responseFail.getData()).isEqualTo(Optional.empty());
         assertThat(responseFail.getMessage()).isEqualTo(Utils.EMAIL_NOT_FOUND);
-        var responseNull = serviceUser.deleteUserByEmail(null);
+        var responseNull = serviceUser.deleteUserByEmail("");
         assertThat(responseNull.getMessage()).isEqualTo(Utils.EMAIL_NOT_GIVEN);
         assertThat(responseNull.getData()).isEqualTo(Optional.empty());
     }
